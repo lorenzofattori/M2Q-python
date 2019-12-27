@@ -21,7 +21,10 @@ class MidiInputHandler(object):
         # self._wallclock = time.time()
 
     def __call__(self, event, data=None):
-        message, deltatime = event
+        (
+            message,
+            _,
+        ) = event  # second variable is deltatime, no idea what it means and why using it
         # self._wallclock += deltatime
 
         # message[0] is a combination of type of midi and channel
@@ -45,28 +48,38 @@ class MidiInputHandler(object):
         )
 
 
-# Prompts user for MIDI input port, unless a valid port number or name
-# is given as the first argument on the command line.
-# API backend defaults to ALSA on Linux.
-port = sys.argv[1] if len(sys.argv) > 1 else None
+# MIDI setup
+def midiSetup():
+    # Prompts user for MIDI input port, unless a valid port number or name
+    # is given as the first argument on the command line.
+    # API backend defaults to ALSA on Linux.
+    port = sys.argv[1] if len(sys.argv) > 1 else None
 
-try:
-    midiin, port_name = open_midiinput(port)
-except (EOFError, KeyboardInterrupt):
-    sys.exit()
+    try:
+        midiin, port_name = open_midiinput(port)
+    except (EOFError, KeyboardInterrupt):
+        sys.exit()
 
-print("Attaching MIDI input callback handler.")
-midiin.set_callback(MidiInputHandler(port_name))
+    print("Attaching MIDI input callback handler.")
+    midiin.set_callback(MidiInputHandler(port_name))
 
-print("Entering main loop. Press Control-C to exit.")
-try:
-    # Just wait for keyboard interrupt,
-    # everything else is handled via the input callback.
-    while True:
-        time.sleep(1)
-except KeyboardInterrupt:
-    print("")
-finally:
-    print("Exit.")
-    midiin.close_port()
-    del midiin
+    return midiin
+
+
+# Main Function
+if __name__ == "__main__":
+    midiin = midiSetup()
+
+    # This is the main loop in the example
+    print("Entering main loop. Press Control-C to exit.")
+    try:
+        # Just wait for keyboard interrupt,
+        # everything else is handled via the input callback.
+        while True:
+            time.sleep(1)
+    except KeyboardInterrupt:
+        print("")
+    finally:
+        print("Exit.")
+        midiin.close_port()
+        del midiin
