@@ -1,20 +1,10 @@
+#   m2q_midi.py
+#   Everything related the MIDI communication of m2q
 #
-# midiin_callback.py
-#
-"""Show how to receive MIDI input by setting a callback function."""
-
-
-import logging
-import sys
-
-import time
 
 from rtmidi.midiutil import open_midiinput
 
-# log = logging.getLogger("midiin_callback")
-# logging.basicConfig(level=logging.DEBUG)
-
-
+# Class MidiInputHandler - Revised version of the rtmidi example for non-polling midi handling
 class MidiInputHandler(object):
     def __init__(self, port):
         self.port = port
@@ -47,8 +37,7 @@ class MidiInputHandler(object):
             f"Channel: {channel}, type: {hex(midiType)}, note: {note}, value: {value}"
         )
 
-
-# MIDI setup
+# Midi setup - from the rtmidi example for non-polling midi handling
 def midiSetup():
     # Prompts user for MIDI input port, unless a valid port number or name
     # is given as the first argument on the command line.
@@ -66,20 +55,37 @@ def midiSetup():
     return midiin
 
 
-# Main Function
-if __name__ == "__main__":
-    midiin = midiSetup()
 
-    # This is the main loop in the example
-    print("Entering main loop. Press Control-C to exit.")
-    try:
-        # Just wait for keyboard interrupt,
-        # everything else is handled via the input callback.
-        while True:
-            time.sleep(1)
-    except KeyboardInterrupt:
-        print("")
-    finally:
-        print("Exit.")
-        midiin.close_port()
-        del midiin
+''' 
+Midi Handling Functions
+'''
+'''
+def onNoteOn(channel, note, velocity):
+    if
+
+
+void OnNoteOn(byte channel, byte note, byte velocity)         // Note on usato per il jumb to cue
+{
+  byte type;
+  if(channel == 16)
+  {
+    type = 2;            // 2 = activate cuestack triggering
+    DEBUG_PRINT("Cuestack Trigger ON ");
+    DEBUG_PRINT(" channel: "); 
+    DEBUG_PRINT(channel);
+    DEBUG_PRINT(" Cue: "); 
+    DEBUG_PRINTLN(note);
+  }
+
+  else
+  {
+    type = 0;              // 0 = jump to cue
+    DEBUG_PRINT("Jump to cue ");
+    DEBUG_PRINT(" channel: "); 
+    DEBUG_PRINT(channel);
+    DEBUG_PRINT(" Cue: "); 
+    DEBUG_PRINTLN(note);
+  }  
+  CreateMessage(type, channel, note);   //crea pacchetto con type 0 (jump) e i valori richiesti e invialo
+
+  '''
