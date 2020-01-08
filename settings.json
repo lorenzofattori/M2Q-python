@@ -1,0 +1,9 @@
+{
+    "destinationIP": "255.255.255.255",
+    "sourcePort": "6553",
+    "destPort": "6553",
+    "jumpMode": "True",
+    "levelMode": "True",
+    "wingMode": "True",
+    "tapToTempo": "True"
+}

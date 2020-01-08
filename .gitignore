@@ -1,3 +1,5 @@
 midiTest
 .vscode
 __pycache__
+venv
+m2q.code-workspace
