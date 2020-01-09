@@ -36,12 +36,37 @@ class MidiInputHandler(object):
         midiType = message[0] & 0xF0
         note = message[1]
         value = message[2]
-        midiTypeDecode(channel, midiType, note, value)
 
-        # print("[%s] %r" % (self.port, message))
-        # print(
-        #     f"Channel: {channel}, type: {hex(midiType)}, note: {note}, value: {value}"
-        # )
+        # decodes what type of midi message is sent and calls the proper handling function
+        # shall I make a separate function?
+        messageType = None
+
+        if midiType == 0x90:
+            # handles note on (jumpToCue or activate cue stack triggering)
+            if channel == 16:
+                messageType = 2  # 2 = activate cuestack triggering
+            else:
+                messageType = 0  # 0 = jump to cue
+
+        elif midiType == 0x80:
+            # handles note off (deactivate cue stack triggering)
+            if channel == 16:
+                messageType = 3  # 3 = de-activate cuestack triggering
+
+        elif midiType == 0xB0:
+            # handles control change (changes playback level)
+
+            # filtering on controller 1, other controller values are not used (this avoids that pressing stop in ableton resets playback)
+            if note == 1:
+                # only send messages if value is different, filter for reducing messages
+                global level, chan  # no other way than using global?
+                if value != level or channel != chan:
+                    note = value
+                    value = channel
+                    messageType = 1  # 1 = jump to playback level
+
+        if messageType != None:
+            m2q_comm.createMessage(messageType, channel, note)
 
 
 # Midi setup - from the rtmidi example for non-polling midi handling
@@ -61,46 +86,3 @@ def midiSetup():
 
     return midiin
 
-
-# decodes what type of midi message is sent and calls the proper handling function
-def midiTypeDecode(channel, midiType, note, value):
-    if midiType == 0x90:
-        onNoteOn(channel, note, value)
-    elif midiType == 0x80:
-        onNoteOff(channel, note, value)
-    elif midiType == 0xB0:
-        onControlChange(channel, note, value)
-
-
-""" 
-Midi Handling Functions
-"""
-# handles note on (jumpToCue or activate cue stack triggering)
-def onNoteOn(channel, note, velocity):
-    if channel == 16:
-        messageType = 2  # 2 = activate cuestack triggering
-
-    else:
-        messageType = 0  # 0 = jump to cue
-
-    m2q_comm.createMessage(messageType, channel, note)
-
-
-# handles note off (deactivate cue stack triggering)
-def onNoteOff(channel, note, velocity):
-    if channel == 16:
-        messageType = 3  # 3 = de-activate cuestack triggering
-        m2q_comm.createMessage(messageType, channel, note)
-
-
-# handles control change (changes playback level)
-def onControlChange(channel, control, value):
-    messageType = 1  # 1 = jump to playback level
-    # filtering on controller 1, other controller values are not used (this avoids that pressing stop in ableton resets playback)
-    if control == 1:
-        # only send messages if value is different, filter for reducing messages
-        global level, chan  # no other way than using global?
-        if value != level or channel != chan:
-            level = value
-            chan = channel
-            m2q_comm.createMessage(messageType, chan, level)

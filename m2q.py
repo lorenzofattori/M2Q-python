@@ -12,6 +12,7 @@ import time
 
 # other project files
 import m2q_midi
+import config
 
 # log = logging.getLogger("midiin_callback")
 # logging.basicConfig(level=logging.DEBUG)
@@ -19,9 +20,12 @@ import m2q_midi
 
 # Main Function
 if __name__ == "__main__":
-    midiin = m2q_midi.midiSetup()
 
-    # beatCounter = 0 # Used for Midi BeatClock (counting 24 times every 4/4)
+    # load settings
+    settings = config.loadSettings()
+
+    # initialize midi
+    midiin = m2q_midi.midiSetup()
 
     # This is the main loop in the example
     print("Entering main loop. Press Control-C to exit.")
