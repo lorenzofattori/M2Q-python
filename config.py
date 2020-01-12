@@ -3,13 +3,14 @@ import json
 
 def loadSettings():
     settings = {
-        "destinationIP": "255.255.255.255",
-        "sourcePort": "6553",
-        "destPort": "6553",
-        "jumpMode": "True",
-        "levelMode": "True",
-        "wingMode": "True",
-        "tapToTempo": "True",
+        "destinationIP": [255, 255, 255, 255],
+        "sourcePort": 6553,
+        "destPort": 6553,
+        "jumpMode": True,
+        "levelMode": True,
+        "cueStackMode": True,
+        "tapToTempoMode": True,
+        "wingMode": False,
     }
     # load settings from file
     try:

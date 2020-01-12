@@ -3,6 +3,7 @@
 #
 
 import sys
+import logging
 
 from rtmidi.midiutil import open_midiinput
 
@@ -15,9 +16,10 @@ chan = 16  # midi channel received, from 1 to 16 for CC filtering
 
 # Class MidiInputHandler - Revised version of the rtmidi example for non-polling midi handling
 class MidiInputHandler(object):
-    def __init__(self, port):
+    def __init__(self, port, settings):
         self.port = port
         # self._wallclock = time.time()
+        self.settings = settings
 
     def __call__(self, event, data=None):
         # second variable is deltatime, no idea what it means and why using it
@@ -32,10 +34,22 @@ class MidiInputHandler(object):
         # 0x9f = note on - channel 16
         # here I split them separately
 
-        channel = (message[0] & 0x0F) + 1
-        midiType = message[0] & 0xF0
-        note = message[1]
-        value = message[2]
+        logging.debug("MidiInputHandler __call__: " + str(message))
+
+        # handling midiClock, does not have data
+        # if message[0] == 0xFA or 0xFB or 0xFC or 0xF8:
+        #     midiType = message[0]
+
+        # handling noteOn, noteOff and controlChange
+        if message[0] == 0x90 or message[0] == 0x80 or message[0] == 0xB0:
+            channel = (message[0] & 0x0F) + 1
+            midiType = message[0] & 0xF0
+            note = message[1]
+            value = message[2]
+
+        else:
+            logging.debug("Incoming midi type not supported")
+            return
 
         # decodes what type of midi message is sent and calls the proper handling function
         # shall I make a separate function?
@@ -65,12 +79,19 @@ class MidiInputHandler(object):
                     value = channel
                     messageType = 1  # 1 = jump to playback level
 
+            # TODO where is the tap to tempo??? (messageType = 4)
+
         if messageType != None:
-            m2q_comm.createMessage(messageType, channel, note)
+            # Create the remote message
+            message = m2q_comm.createMessage(messageType, channel, note, self.settings)
+
+            if message != None:
+                # Send the UDP message
+                m2q_comm.sendUdp(message)
 
 
 # Midi setup - from the rtmidi example for non-polling midi handling
-def midiSetup():
+def midiSetup(settings):
     # Prompts user for MIDI input port, unless a valid port number or name
     # is given as the first argument on the command line.
     # API backend defaults to ALSA on Linux.
@@ -82,7 +103,7 @@ def midiSetup():
         sys.exit()
 
     print("Attaching MIDI input callback handler.")
-    midiin.set_callback(MidiInputHandler(port_name))
+    midiin.set_callback(MidiInputHandler(port_name, settings))
 
     return midiin
 

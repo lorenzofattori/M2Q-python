@@ -14,8 +14,9 @@ import time
 import m2q_midi
 import config
 
-# log = logging.getLogger("midiin_callback")
-# logging.basicConfig(level=logging.DEBUG)
+logging.basicConfig(
+    format="%(levelname)s - %(asctime)s: %(message)s", level=logging.DEBUG
+)
 
 
 # Main Function
@@ -25,7 +26,7 @@ if __name__ == "__main__":
     settings = config.loadSettings()
 
     # initialize midi
-    midiin = m2q_midi.midiSetup()
+    midiin = m2q_midi.midiSetup(settings)
 
     # This is the main loop in the example
     print("Entering main loop. Press Control-C to exit.")
