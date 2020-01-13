@@ -13,6 +13,7 @@ import time
 # other project files
 import m2q_midi
 import config
+import m2q_comm
 
 logging.basicConfig(
     format="%(levelname)s - %(asctime)s: %(message)s", level=logging.DEBUG
@@ -25,8 +26,11 @@ if __name__ == "__main__":
     # load settings
     settings = config.loadSettings()
 
+    # initialize UDP socket
+    udpSocket = m2q_comm.udpSetup(settings["destinationIP"])
+
     # initialize midi
-    midiin = m2q_midi.midiSetup(settings)
+    midiin = m2q_midi.midiSetup(settings, udpSocket)
 
     # This is the main loop in the example
     print("Entering main loop. Press Control-C to exit.")

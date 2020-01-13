@@ -3,7 +3,7 @@ import json
 
 def loadSettings():
     settings = {
-        "destinationIP": [255, 255, 255, 255],
+        "destinationIP": "255.255.255.255",
         "sourcePort": 6553,
         "destPort": 6553,
         "jumpMode": True,
