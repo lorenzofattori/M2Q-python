@@ -1,5 +1,6 @@
 import logging
 import socket
+import sys
 
 
 def createMessage(messageType, channel, note, wingMode):
@@ -39,7 +40,11 @@ def sendUdp(udpSocket, message, destinationIP, destPort):
     logging.debug(message)
     logging.debug(f"{destinationIP}, {destPort}")
 
-    udpSocket.sendto(bytes(message, "utf-8"), (destinationIP, destPort))
+    try:
+        udpSocket.sendto(bytes(message, "utf-8"), (destinationIP, destPort))
+    except socket.error:
+        logging.warning("Failed send UDP")
+        sys.exit()
 
 
 def udpSetup(destinationIP):
@@ -48,7 +53,7 @@ def udpSetup(destinationIP):
         udpSocket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     except socket.error:
         logging.warning("Failed to create UDP Socket")
-        return
+        sys.exit()
 
     # udpSocket.bind(("", srcPort))
 

@@ -107,7 +107,6 @@ class MidiInputHandler(object):
             if self.settings["tapToTempoMode"] == True:
                 remoteMessage = m2q_comm.createMessage(4, channel, note, None)
 
-        print(remoteMessage)
         if remoteMessage != None:
             # Send the UDP message
             m2q_comm.sendUdp(

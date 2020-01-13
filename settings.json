@@ -1,5 +1,5 @@
 {
-    "destinationIP": "255.255.255.255",
+    "destinationIP": "192.168.1.1",
     "sourcePort": 6553,
     "destPort": 6553,
     "jumpMode": 1,

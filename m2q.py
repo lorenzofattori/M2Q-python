@@ -16,7 +16,7 @@ import config
 import m2q_comm
 
 logging.basicConfig(
-    format="%(levelname)s - %(asctime)s: %(message)s", level=logging.DEBUG
+    format="%(levelname)s - %(asctime)s: %(message)s", level=logging.INFO
 )
 
 
@@ -38,7 +38,7 @@ if __name__ == "__main__":
         # Just wait for keyboard interrupt,
         # everything else is handled via the input callback.
         while True:
-            time.sleep(1)
+            time.sleep(10)
     except KeyboardInterrupt:
         print("")
     finally:
