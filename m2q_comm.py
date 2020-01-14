@@ -4,9 +4,6 @@ import sys
 
 
 def createMessage(messageType, channel, note, wingMode):
-
-    # TODO I don't need to have the settings check here, I can filter before calling this function, refactor it
-
     # creates a chamsys remote message
 
     logging.debug(
@@ -30,7 +27,7 @@ def createMessage(messageType, channel, note, wingMode):
         return "\\<83>," + str(note) + "H"
 
     elif messageType == 4:
-        return "\\<71>2H"
+        return "\\<71>,2H"
 
     else:
         return None

@@ -12,6 +12,7 @@ import m2q_comm
 # global variables for midi handling
 level = 0  # PB Level for Midi CC filtering
 chan = 16  # midi channel received, from 1 to 16 for CC filtering
+beatcounter = 0  # used for counting tap to tempo
 
 
 # Class MidiInputHandler - Revised version of the rtmidi example for non-polling midi handling
@@ -105,7 +106,11 @@ class MidiInputHandler(object):
         ):
             # handles clock start/stop etc
             if self.settings["tapToTempoMode"] == True:
-                remoteMessage = m2q_comm.createMessage(4, channel, note, None)
+                global beatcounter
+                beatcounter += 1
+                if beatcounter == 24:
+                    beatcounter = 0
+                    remoteMessage = m2q_comm.createMessage(4, channel, note, None)
 
         if remoteMessage != None:
             # Send the UDP message
