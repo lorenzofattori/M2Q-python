@@ -16,7 +16,7 @@ import config
 import m2q_comm
 
 logging.basicConfig(
-    format="%(levelname)s - %(asctime)s: %(message)s", level=logging.INFO
+    format="%(levelname)s - %(asctime)s: %(message)s", level=logging.DEBUG
 )
 
 

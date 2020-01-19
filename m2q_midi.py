@@ -9,11 +9,6 @@ from rtmidi.midiutil import open_midiinput
 
 import m2q_comm
 
-# global variables for midi handling
-level = 0  # PB Level for Midi CC filtering
-chan = 16  # midi channel received, from 1 to 16 for CC filtering
-beatcounter = 0  # used for counting tap to tempo
-
 
 # Class MidiInputHandler - Revised version of the rtmidi example for non-polling midi handling
 class MidiInputHandler(object):
@@ -22,6 +17,9 @@ class MidiInputHandler(object):
         # self._wallclock = time.time()
         self.settings = settings
         self.udpSocket = udpSocket
+        self.level = 0  # PB Level for Midi CC filtering
+        self.chan = 16  # midi channel received, from 1 to 16 for CC filtering
+        self.beatcounter = 0  # used for counting tap to tempo
 
     def __call__(self, event, data=None):
         # second variable is deltatime, no idea what it means and why using it
@@ -91,25 +89,25 @@ class MidiInputHandler(object):
                 # filtering on controller 1, other controller values are not used (this avoids that pressing stop in ableton resets playback)
                 if note == 1:
                     # only send messages if value is different, filter for reducing messages
-                    global level, chan  # no other way than using global?
-                    if value != level or channel != chan:
-                        # save current values for next check
-                        level = value
-                        chan = channel
+                    if channel != 16:
+                    #ch 16 only for cue stack, no level
+                        if value != self.level or channel != self.chan:
+                            # save current values for next check
+                            self.level = value
+                            self.chan = channel
 
-                        remoteMessage = m2q_comm.createMessage(
-                            1, channel, value, self.settings["wingMode"]
-                        )
+                            remoteMessage = m2q_comm.createMessage(
+                                1, channel, value, self.settings["wingMode"]
+                            )
 
         elif (
             midiType == 0xFA or midiType == 0xFB or midiType == 0xFC or midiType == 0xF8
         ):
             # handles clock start/stop etc
             if self.settings["tapToTempoMode"] == True:
-                global beatcounter
-                beatcounter += 1
-                if beatcounter == 24:
-                    beatcounter = 0
+                self.beatcounter += 1
+                if self.beatcounter == 24:
+                    self.beatcounter = 0
                     remoteMessage = m2q_comm.createMessage(4, channel, note, None)
 
         if remoteMessage != None:
