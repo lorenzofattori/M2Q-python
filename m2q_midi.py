@@ -7,6 +7,18 @@ import logging
 
 from rtmidi.midiutil import open_midiinput
 
+# used for getting midi ports
+from rtmidi import (
+    API_LINUX_ALSA,
+    API_MACOSX_CORE,
+    API_RTMIDI_DUMMY,
+    API_UNIX_JACK,
+    API_WINDOWS_MM,
+    MidiIn,
+    MidiOut,
+    get_compiled_api,
+)
+
 import m2q_comm
 
 
@@ -90,7 +102,7 @@ class MidiInputHandler(object):
                 if note == 1:
                     # only send messages if value is different, filter for reducing messages
                     if channel != 16:
-                    #ch 16 only for cue stack, no level
+                        # ch 16 only for cue stack, no level
                         if value != self.level or channel != self.chan:
                             # save current values for next check
                             self.level = value
@@ -125,10 +137,52 @@ def midiSetup(settings, udpSocket):
     # Prompts user for MIDI input port, unless a valid port number or name
     # is given as the first argument on the command line.
     # API backend defaults to ALSA on Linux.
-    port = sys.argv[1] if len(sys.argv) > 1 else None
+    # port = sys.argv[1] if len(sys.argv) > 1 else None
+
+    apis = {
+        API_MACOSX_CORE: "macOS (OS X) CoreMIDI",
+        API_LINUX_ALSA: "Linux ALSA",
+        API_UNIX_JACK: "Jack Client",
+        API_WINDOWS_MM: "Windows MultiMedia",
+        API_RTMIDI_DUMMY: "RtMidi Dummy",
+    }
+
+    available_apis = get_compiled_api()
+
+    for api, api_name in sorted(apis.items()):
+        if api in available_apis:
+            name = "input"
+            class_ = MidiIn
+            try:
+                midi = class_(api)
+                ports = midi.get_ports()
+            except Exception as exc:
+                # this needs to be changed in popup
+                print("Could not probe MIDI %s ports: %s" % (name, exc))
+                continue
+
+            if not ports:
+                # this needs to be changed in popup
+                print("No MIDI %s ports found." % name)
+            else:
+                # this needs to be changed in popup
+                print("Available MIDI %s ports:\n" % name)
+
+                for port, name in enumerate(ports):
+                    print("[%i] %s" % (port, name))
+
+            print("")
+            del midi
+
+    # for now just oper first port available, after you need to be able to select which port to open in UI, but library uses print statements.
+    if len(ports) > 1:
+        port = 0
+    port = 0
 
     try:
         midiin, port_name = open_midiinput(port)
+        # TODO, change this in UI item
+        print(f"Name of the interface {port_name} ")
     except (EOFError, KeyboardInterrupt):
         sys.exit()
 
