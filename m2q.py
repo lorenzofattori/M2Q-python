@@ -34,6 +34,19 @@ def shutdown(midiin):
         sys.exit()
 
 
+# UI toggle button functions
+def toggleCheckboxValue(toggleValue, whichSetting):
+    """
+    This function handles the clicking of the CheckBox for settings
+    It's called by the checkbox itselfs, it checks if the checkbox is selected or not and changes the current settings with the new value
+    """
+    print(f"toggleValue is {toggleValue}")
+    if toggleValue == True:
+        settings[whichSetting] = 1
+    else:
+        settings[whichSetting] = 0
+
+
 # Main Function
 if __name__ == "__main__":
 
@@ -87,36 +100,67 @@ if __name__ == "__main__":
         controlFrame, text=str(settings["destPort"]), bg="black", fg="white"
     )
 
-    cueTriggerLabel = tk.Label(
-        controlFrame, text="Cue Trigger:", bg="black", fg="white"
-    )
-    cueTriggerValue = tk.Label(
-        controlFrame, text=settings["jumpMode"], bg="black", fg="white"
-    )
-
-    levelTriggerLabel = tk.Label(
-        controlFrame, text="Level Trigger:", bg="black", fg="white"
-    )
-    levelTriggerValue = tk.Label(
-        controlFrame, text=settings["levelMode"], bg="black", fg="white"
-    )
-
-    cueStackTriggerLabel = tk.Label(
-        controlFrame, text="Cue Stack Trigger:", bg="black", fg="white"
-    )
-    cueStackTriggerValue = tk.Label(
-        controlFrame, text=settings["cueStackMode"], bg="black", fg="white"
+    # Checkbox for Settings
+    cueTriggerTkVar = tk.BooleanVar()
+    cueTriggerTkVar.set(bool(settings["jumpMode"]))
+    cueTriggerValue = tk.Checkbutton(
+        controlFrame,
+        text="Cue Trigger",
+        bg="black",
+        fg="white",
+        selectcolor="black",
+        variable=cueTriggerTkVar,
+        command=lambda: toggleCheckboxValue(cueTriggerTkVar.get(), "jumpMode"),
     )
 
-    tap2TempoTriggerLabel = tk.Label(
-        controlFrame, text="Tap2Tempo Trigger:", bg="black", fg="white"
+    levelTriggerTkVar = tk.BooleanVar()
+    levelTriggerTkVar.set(bool(settings["levelMode"]))
+    levelTriggerValue = tk.Checkbutton(
+        controlFrame,
+        text="Level Trigger",
+        bg="black",
+        fg="white",
+        selectcolor="black",
+        variable=levelTriggerTkVar,
+        command=lambda: toggleCheckboxValue(levelTriggerTkVar.get(), "levelMode"),
     )
-    tap2TempoTriggerValue = tk.Label(
-        controlFrame, text=settings["tapToTempoMode"], bg="black", fg="white"
+
+    cueStackTriggerTkVar = tk.BooleanVar()
+    cueStackTriggerTkVar.set(bool(settings["cueStackMode"]))
+    cueStackTriggerValue = tk.Checkbutton(
+        controlFrame,
+        text="CueStack Trigger",
+        bg="black",
+        fg="white",
+        selectcolor="black",
+        variable=cueStackTriggerTkVar,
+        command=lambda: toggleCheckboxValue(cueStackTriggerTkVar.get(), "cueStackMode"),
     )
-    wingModeLabel = tk.Label(controlFrame, text="Wing Mode:", bg="black", fg="white")
-    wingModeValue = tk.Label(
-        controlFrame, text=settings["wingMode"], bg="black", fg="white"
+
+    tap2TempoTriggerTkVar = tk.BooleanVar()
+    tap2TempoTriggerTkVar.set(bool(settings["tapToTempoMode"]))
+    tap2TempoTriggerValue = tk.Checkbutton(
+        controlFrame,
+        text="Tap2Tempo Trigger",
+        bg="black",
+        fg="white",
+        selectcolor="black",
+        variable=tap2TempoTriggerTkVar,
+        command=lambda: toggleCheckboxValue(
+            tap2TempoTriggerTkVar.get(), "tapToTempoMode"
+        ),
+    )
+
+    wingModeTkVar = tk.BooleanVar()
+    wingModeTkVar.set(bool(settings["wingMode"]))
+    wingModeValue = tk.Checkbutton(
+        controlFrame,
+        text="Wing Mode",
+        bg="black",
+        fg="white",
+        selectcolor="black",
+        variable=wingModeTkVar,
+        command=lambda: toggleCheckboxValue(wingModeTkVar.get(), "wingMode"),
     )
 
     # UI - Layout widgets for the control frame
@@ -127,15 +171,10 @@ if __name__ == "__main__":
 
     destinationPortLabel.grid(row=2, column=0)
     destinationPortValue.grid(row=2, column=1)
-    cueTriggerLabel.grid(row=3, column=0)
     cueTriggerValue.grid(row=3, column=1)
-    levelTriggerLabel.grid(row=4, column=0)
     levelTriggerValue.grid(row=4, column=1)
-    cueStackTriggerLabel.grid(row=5, column=0)
     cueStackTriggerValue.grid(row=5, column=1)
-    tap2TempoTriggerLabel.grid(row=6, column=0)
     tap2TempoTriggerValue.grid(row=6, column=1)
-    wingModeLabel.grid(row=7, column=0)
     wingModeValue.grid(row=7, column=1)
 
     # initialize UDP socket

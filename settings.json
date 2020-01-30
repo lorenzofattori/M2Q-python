@@ -2,7 +2,7 @@
     "destinationIP": "255.255.255.255",
     "sourcePort": 6553,
     "destPort": 6553,
-    "jumpMode": 1,
+    "jumpMode": 0,
     "levelMode": 1,
     "cueStackMode": 1,
     "tapToTempoMode": 1,

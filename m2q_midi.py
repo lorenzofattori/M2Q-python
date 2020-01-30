@@ -6,6 +6,8 @@ import sys
 import logging
 
 from rtmidi.midiutil import open_midiinput
+from rtmidi import NoDevicesError
+from tkinter import messagebox
 
 # used for getting midi ports
 from rtmidi import (
@@ -92,8 +94,9 @@ class MidiInputHandler(object):
         elif midiType == 0x80:
             # handles note off (deactivate cue stack triggering)
             if channel == 16:
-                # 3 = de-activate cuestack triggering
-                remoteMessage = m2q_comm.createMessage(3, channel, note, None)
+                 if self.settings["cueStackMode"] == True:
+                    # 3 = de-activate cuestack triggering
+                    remoteMessage = m2q_comm.createMessage(3, channel, note, None)
 
         elif midiType == 0xB0:
             # handles control change (changes playback level)
@@ -184,6 +187,12 @@ def midiSetup(settings, udpSocket):
         # TODO, change this in UI item
         print(f"Name of the interface {port_name} ")
     except (EOFError, KeyboardInterrupt):
+        sys.exit()
+    except NoDevicesError:
+        messagebox.showerror(
+            "Error",
+            "No MIDI input ports found \nConnect a MIDI input interface or start the MIDI Loopback adaptor",
+        )
         sys.exit()
 
     print("Attaching MIDI input callback handler.")
