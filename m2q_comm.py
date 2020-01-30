@@ -41,7 +41,7 @@ def sendUdp(udpSocket, message, destinationIP, destPort):
         udpSocket.sendto(bytes(message, "utf-8"), (destinationIP, destPort))
     except socket.error:
         logging.warning("Failed send UDP")
-        sys.exit()
+        #sys.exit()
 
 
 def udpSetup(destinationIP):
