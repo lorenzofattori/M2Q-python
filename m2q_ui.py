@@ -19,7 +19,7 @@ def toggleCheckboxValue(toggleValue, whichSetting, settings):
     This function handles the clicking of the CheckBox for settings
     It's called by the checkbox itselfs, it checks if the checkbox is selected or not and changes the current settings with the new value
     """
-    #print(f"toggleValue is {toggleValue}")
+    # print(f"toggleValue is {toggleValue}")
     if toggleValue == True:
         settings[whichSetting] = 1
     else:
@@ -281,8 +281,17 @@ def createUi(settings):
     tap2TempoTriggerValue.grid(sticky="W", row=7, column=0, columnspan=2)
     wingModeValue.grid(sticky="W", row=9, column=0, columnspan=2)
 
-    saveSettingsButton.grid(row=10, column=0, pady=15)
+    saveSettingsButton.grid(row=6, column=1, columnspan=2, padx=5)
     # loadSettingsButton.grid(row=8, column=1)
+
+    # status display
+    statusCanvas = tk.Canvas(
+        statusFrame, width=300, height=100, bg="black", highlightthickness=3
+    )
+
+    # statusCanvas.create_rectangle(230, 10, 290, 60,
+    #         outline="#f11", fill="#1f1", width=2)
+    statusCanvas.grid(row=1)
 
     return window
 
