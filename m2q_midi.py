@@ -94,7 +94,7 @@ class MidiInputHandler(object):
         elif midiType == 0x80:
             # handles note off (deactivate cue stack triggering)
             if channel == 16:
-                 if self.settings["cueStackMode"] == True:
+                if self.settings["cueStackMode"] == True:
                     # 3 = de-activate cuestack triggering
                     remoteMessage = m2q_comm.createMessage(3, channel, note, None)
 
@@ -161,18 +161,18 @@ def midiSetup(settings, udpSocket):
                 ports = midi.get_ports()
             except Exception as exc:
                 # this needs to be changed in popup
-                print("Could not probe MIDI %s ports: %s" % (name, exc))
+                logging.warning("Could not probe MIDI %s ports: %s" % (name, exc))
                 continue
 
             if not ports:
                 # this needs to be changed in popup
-                print("No MIDI %s ports found." % name)
+                logging.warning("No MIDI %s ports found." % name)
             else:
                 # this needs to be changed in popup
-                print("Available MIDI %s ports:\n" % name)
+                logging.info("Available MIDI %s ports:\n" % name)
 
                 for port, name in enumerate(ports):
-                    print("[%i] %s" % (port, name))
+                    logging.info("[%i] %s" % (port, name))
 
             print("")
             del midi
@@ -185,7 +185,7 @@ def midiSetup(settings, udpSocket):
     try:
         midiin, port_name = open_midiinput(port)
         # TODO, change this in UI item
-        print(f"Name of the interface {port_name} ")
+        logging.debug(f"Name of the interface {port_name} ")
     except (EOFError, KeyboardInterrupt):
         sys.exit()
     except NoDevicesError:
@@ -195,7 +195,7 @@ def midiSetup(settings, udpSocket):
         )
         sys.exit()
 
-    print("Attaching MIDI input callback handler.")
+    logging.debug("Attaching MIDI input callback handler.")
     midiin.ignore_types(timing=False)
     midiin.set_callback(MidiInputHandler(port_name, settings, udpSocket))
 
