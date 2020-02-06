@@ -13,6 +13,11 @@ def shutdown(midiin, window):
         sys.exit()
 
 
+# def flashMIDI():
+#     window.statusFrame.midiInLabel.config(bg = 'black')
+#     midiInLabel.after(100, lambda: midiInLabel.config(bg = 'white'))
+
+
 # UI toggle button functions
 def toggleCheckboxValue(toggleValue, whichSetting, settings):
     """
@@ -56,7 +61,7 @@ def createUi(settings):
     # UI - Create main containers
     titleFrame = tk.Frame(window, background="black")
     controlFrame = tk.Frame(window, background="black")
-    statusFrame = tk.Frame(window,)
+    statusFrame = tk.Frame(window, background="black")
 
     # UI - layout all of the main containers
     window.grid_rowconfigure(1, weight=1)
@@ -284,14 +289,31 @@ def createUi(settings):
     saveSettingsButton.grid(row=6, column=1, columnspan=2, padx=5)
     # loadSettingsButton.grid(row=8, column=1)
 
-    # status display
-    statusCanvas = tk.Canvas(
-        statusFrame, width=300, height=100, bg="black", highlightthickness=3
+    # status display Area
+
+    lineLabel2 = tk.Label(
+        statusFrame,
+        text="_________________________",
+        bg="black",
+        fg="white",
+        font="Helvetica 18 bold",
     )
 
-    # statusCanvas.create_rectangle(230, 10, 290, 60,
-    #         outline="#f11", fill="#1f1", width=2)
-    statusCanvas.grid(row=1)
+    lineLabel2.grid(row=0)
+
+    midiInLabel = tk.Label(
+        statusFrame, text="MIDI IN", bg="black", fg="white", font="Helvetica 10 bold"
+    )
+    midiInLabel.grid(sticky="W", row=1, column=0)
+
+    chamsysOutLabel = tk.Label(
+        statusFrame,
+        text="CHAMSYS OUT",
+        bg="black",
+        fg="white",
+        font="Helvetica 10 bold",
+    )
+    chamsysOutLabel.grid(sticky="E", row=1, column=0)
 
     return window
 

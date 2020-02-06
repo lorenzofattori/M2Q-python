@@ -22,6 +22,7 @@ from rtmidi import (
 )
 
 import m2q_comm
+import m2q_ui
 
 
 # Class MidiInputHandler - Revised version of the rtmidi example for non-polling midi handling
@@ -70,6 +71,9 @@ class MidiInputHandler(object):
             midiType = message[0] & 0xF0
             note = message[1]
             value = message[2]
+
+            # flash MIDIIN led
+            # m2q_ui.flashMIDI()
 
         else:
             logging.debug("Incoming midi type not supported")
