@@ -26,7 +26,7 @@ from m2q_ui import UserInterface
 
 
 logging.basicConfig(
-    format="%(levelname)s - %(asctime)s: %(message)s", level=logging.DEBUG
+    format="%(levelname)s - %(asctime)s: %(message)s", level=logging.INFO
 )
 
 

@@ -159,6 +159,7 @@ def midiSetup(settings, udpSocket, userInterface):
 
     available_apis = get_compiled_api()
 
+    selectedPort = None
     for api, api_name in sorted(apis.items()):
         if api in available_apis:
             name = "input"
@@ -180,17 +181,29 @@ def midiSetup(settings, udpSocket, userInterface):
 
                 for port, name in enumerate(ports):
                     logging.info("[%i] %s" % (port, name))
+                    # This populates the list of interfaces in the UI
+                    if name not in userInterface.interfacesValue["values"]:
+                        userInterface.interfacesValue["values"] = (
+                            *userInterface.interfacesValue["values"],
+                            name,
+                        )
+                    if name == settings["interface"]:
+                        selectedPort = port
 
             print("")
             del midi
 
-    # for now just oper first port available, after you need to be able to select which port to open in UI, but library uses print statements.
-    if len(ports) > 1:
-        port = 0
-    port = 0
+    if selectedPort == None:
+        messagebox.showwarning(
+            "Not found!",
+            "The previously saved MIDI interface is not found! \nUsing default one",
+        )
+    selectedPort = 0
 
+    # update the selected interface in the UI
+    userInterface.interfacesValue.set(ports[selectedPort])
     try:
-        midiin, port_name = open_midiinput(port)
+        midiin, port_name = open_midiinput(selectedPort)
         # TODO, change this in UI item
         logging.debug(f"Name of the interface {port_name} ")
     except (EOFError, KeyboardInterrupt):

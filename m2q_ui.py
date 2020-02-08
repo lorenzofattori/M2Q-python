@@ -1,5 +1,5 @@
 import tkinter as tk
-from tkinter import messagebox
+from tkinter import messagebox, ttk
 import sys
 
 import config
@@ -69,6 +69,34 @@ class UserInterface:
             font="Helvetica 16 bold",
         )
         self.settingsLabel.config(anchor="w")
+
+        self.interfacesLabel = tk.Label(
+            self.controlFrame,
+            text="MIDI Interface:",
+            bg="black",
+            fg="white",
+            font="Helvetica 10 bold",
+        )
+
+        style = ttk.Style()
+        style.configure(
+            "TLabel", foreground="white", background="black",
+        )
+        self.interfacesList = []
+        self.interfacesValue = ttk.Combobox(
+            self.controlFrame, values=self.interfacesList, style="TLabel"
+        )
+
+        self.interfacesSetButton = tk.Button(
+            self.controlFrame,
+            bg="black",
+            fg="white",
+            text="Set",
+            width=5,
+            command=lambda: self.setDestinationIp(
+                self.interfacesValue.get(), "interface", settings
+            ),
+        )
 
         self.destinationIpLabel = tk.Label(
             self.controlFrame,
@@ -227,6 +255,10 @@ class UserInterface:
         self.settingsLabel.grid(row=0, columnspan=3, pady=5)
         self.controlFrame.grid_rowconfigure(1, minsize=10)
 
+        self.interfacesLabel.grid(sticky="W", row=1, column=0)
+        self.interfacesValue.grid(row=1, column=1)
+        self.interfacesSetButton.grid(row=1, column=2, padx=2)
+
         self.destinationIpLabel.grid(sticky="W", row=2, column=0)
         self.destinationIpValue.grid(row=2, column=1, padx=5)
         self.destinationIpSetButton.grid(row=2, column=2, padx=2)
@@ -284,7 +316,7 @@ class UserInterface:
 
     def setDestinationIp(self, entryValue, whichSetting, settings):
         """
-        This function handles changes of the entry values for IP address and port
+        This function handles changes of the entry values for interface, IP address and port
         It's called by when pressing one of the Set vuttons, and changes the current settings with the new value
         """
         # TODO, make a validation check before setting it?
