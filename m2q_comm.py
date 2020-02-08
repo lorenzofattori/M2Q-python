@@ -33,14 +33,16 @@ def createMessage(messageType, channel, note, wingMode):
         return None
 
 
-def sendUdp(udpSocket, message, destinationIP, destPort):
+def sendUdp(udpSocket, message, destinationIP, destPort, userInterface):
     logging.debug(message)
     logging.debug(f"{destinationIP}, {destPort}")
 
     try:
         udpSocket.sendto(bytes(message, "utf-8"), (destinationIP, destPort))
+        userInterface.flash("chamsys")
     except socket.error:
         logging.warning("Failed send UDP")
+        userInterface.flash("ERROR")
         # sys.exit()
 
 

@@ -23,11 +23,12 @@ from rtmidi import (
 
 import m2q_comm
 import m2q_ui
+from m2q_ui import UserInterface
 
 
 # Class MidiInputHandler - Revised version of the rtmidi example for non-polling midi handling
 class MidiInputHandler(object):
-    def __init__(self, port, settings, udpSocket):
+    def __init__(self, port, settings, udpSocket, userInterface):
         self.port = port
         # self._wallclock = time.time()
         self.settings = settings
@@ -35,6 +36,7 @@ class MidiInputHandler(object):
         self.level = 0  # PB Level for Midi CC filtering
         self.chan = 16  # midi channel received, from 1 to 16 for CC filtering
         self.beatcounter = 0  # used for counting tap to tempo
+        self.userInterface = userInterface
 
     def __call__(self, event, data=None):
         # second variable is deltatime, no idea what it means and why using it
@@ -73,7 +75,7 @@ class MidiInputHandler(object):
             value = message[2]
 
             # flash MIDIIN led
-            # m2q_ui.flashMIDI()
+            self.userInterface.flash("MIDI")
 
         else:
             logging.debug("Incoming midi type not supported")
@@ -136,11 +138,12 @@ class MidiInputHandler(object):
                 remoteMessage,
                 self.settings["destinationIP"],
                 self.settings["destPort"],
+                self.userInterface,
             )
 
 
 # Midi setup - from the rtmidi example for non-polling midi handling
-def midiSetup(settings, udpSocket):
+def midiSetup(settings, udpSocket, userInterface):
     # Prompts user for MIDI input port, unless a valid port number or name
     # is given as the first argument on the command line.
     # API backend defaults to ALSA on Linux.
@@ -201,7 +204,7 @@ def midiSetup(settings, udpSocket):
 
     logging.debug("Attaching MIDI input callback handler.")
     midiin.ignore_types(timing=False)
-    midiin.set_callback(MidiInputHandler(port_name, settings, udpSocket))
+    midiin.set_callback(MidiInputHandler(port_name, settings, udpSocket, userInterface))
 
     return midiin
 

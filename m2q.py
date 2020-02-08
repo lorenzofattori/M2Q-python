@@ -20,7 +20,9 @@ from tkinter import messagebox
 import m2q_midi
 import config
 import m2q_comm
-import m2q_ui
+
+# import m2q_ui
+from m2q_ui import UserInterface
 
 
 logging.basicConfig(
@@ -35,16 +37,19 @@ if __name__ == "__main__":
     settings = config.loadSettings()
 
     # Create UI
-    window = m2q_ui.createUi(settings)
+    # window = m2q_ui.createUi(settings)
+    window = tk.Tk()
+    userInterface = UserInterface(window, settings)
 
     # initialize UDP socket
     udpSocket = m2q_comm.udpSetup(settings["destinationIP"])
 
     # initialize midi
-    midiin = m2q_midi.midiSetup(settings, udpSocket)
+    midiin = m2q_midi.midiSetup(settings, udpSocket, userInterface)
 
     # handle shutdown when the windows X is pressed
-    window.protocol("WM_DELETE_WINDOW", lambda: m2q_ui.shutdown(midiin, window))
+    # it will be nice to have this in the userinterface class, but I don't know how to properly handle the midiin port closing and deleting of midiin, any idea?
+    window.protocol("WM_DELETE_WINDOW", lambda: userInterface.shutdown(midiin))
 
     # everything is handled via the input callback, just refresh UI
     window.mainloop()
