@@ -4,15 +4,16 @@ import sys
 
 import config
 
+
 class UserInterface:
     def __init__(self, window, settings):
         self.window = window
-        
+
         window.title("M2Q")
         window.configure(background="black")
         window.iconbitmap(r"m2q.ico")
-        
-        #Create main containers and lay them out
+
+        # Create main containers and lay them out
         self.titleFrame = tk.Frame(window, background="black")
         self.controlFrame = tk.Frame(window, background="black")
         self.statusFrame = tk.Frame(window, background="black")
@@ -22,10 +23,9 @@ class UserInterface:
 
         self.titleFrame.grid(row=0)
         self.controlFrame.grid(row=1)
-        self.statusFrame.grid(row=3)        
+        self.statusFrame.grid(row=3)
 
-
-        #Populate Frame title and lay it out
+        # Populate Frame title and lay it out
         self.logoCanvas = tk.Canvas(
             self.titleFrame, width=350, height=240, bg="black", highlightthickness=0
         )
@@ -54,16 +54,19 @@ class UserInterface:
             bg="black",
             fg="white",
             font="Helvetica 18 bold",
-        ) 
+        )
 
         self.logoCanvas.grid(row=0)
         self.titleLabel.grid(row=1)
         self.lineLabel.grid(row=2)
 
-
-        #Control Frame
+        # Control Frame
         self.settingsLabel = tk.Label(
-            self.controlFrame, text="Settings", bg="black", fg="white", font="Helvetica 16 bold",
+            self.controlFrame,
+            text="Settings",
+            bg="black",
+            fg="white",
+            font="Helvetica 16 bold",
         )
         self.settingsLabel.config(anchor="w")
 
@@ -196,7 +199,9 @@ class UserInterface:
             selectcolor="black",
             font="Helvetica 10 bold",
             variable=self.wingModeTkVar,
-            command=lambda: self.toggleCheckboxValue(self.wingModeTkVar.get(), "wingMode", settings),
+            command=lambda: self.toggleCheckboxValue(
+                self.wingModeTkVar.get(), "wingMode", settings
+            ),
         )
 
         # Save and Load Settings Buttons
@@ -219,7 +224,6 @@ class UserInterface:
         #     #command=lambda: self.loadSettings(window),
         # )
 
-
         self.settingsLabel.grid(row=0, columnspan=3, pady=5)
         self.controlFrame.grid_rowconfigure(1, minsize=10)
 
@@ -240,8 +244,7 @@ class UserInterface:
         self.saveSettingsButton.grid(row=6, column=1, columnspan=2, padx=5)
         # self.loadSettingsButton.grid(row=8, column=1)
 
-
-        #Populate Status frame and lay it out
+        # Populate Status frame and lay it out
         self.lineLabel2 = tk.Label(
             self.statusFrame,
             text="_________________________",
@@ -253,7 +256,11 @@ class UserInterface:
         self.lineLabel2.grid(row=0)
 
         self.midiInLabel = tk.Label(
-            self.statusFrame, text="MIDI IN", bg="black", fg="white", font="Helvetica 10 bold"
+            self.statusFrame,
+            text="MIDI IN",
+            bg="black",
+            fg="white",
+            font="Helvetica 10 bold",
         )
         self.midiInLabel.grid(sticky="W", row=1, column=0)
 
@@ -289,7 +296,7 @@ class UserInterface:
         This function handles the clicking of the CheckBox for settings
         It's called by the checkbox itselfs, it checks if the checkbox is selected or not and changes the current settings with the new value
         """
-        #print(f"toggleValue is {toggleValue}")
+        # print(f"toggleValue is {toggleValue}")
         if toggleValue == True:
             settings[whichSetting] = 1
         else:
@@ -316,14 +323,16 @@ class UserInterface:
         """
 
         if whichValue == "MIDI":
-            self.midiInLabel.config(fg = '#C01914')
-            self.midiInLabel.after(200, lambda: self.midiInLabel.config(fg = 'white'))
+            self.midiInLabel.config(fg="#C01914")
+            self.midiInLabel.after(200, lambda: self.midiInLabel.config(fg="white"))
 
         if whichValue == "chamsys":
-            self.chamsysOutLabel.config(fg = '#C01914')
-            self.chamsysOutLabel.after(200, lambda: self.chamsysOutLabel.config(fg = 'white'))
+            self.chamsysOutLabel.config(fg="#C01914")
+            self.chamsysOutLabel.after(
+                200, lambda: self.chamsysOutLabel.config(fg="white")
+            )
 
         if whichValue == "ERROR":
-            self.errorLabel.config(fg = '#C01914')
-            self.errorLabel.after(1000, lambda: self.errorLabel.config(fg = 'black'))
+            self.errorLabel.config(fg="#C01914")
+            self.errorLabel.after(1000, lambda: self.errorLabel.config(fg="black"))
 
