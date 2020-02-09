@@ -1,1 +1,1 @@
-{"interface": "loopMIDI Port 0", "destinationIP": "255.255.255.259", "sourcePort": 6553, "destPort": 6553, "jumpMode": 1, "levelMode": 1, "cueStackMode": 1, "tapToTempoMode": 1, "wingMode": 0}
+{"interface": "loopMIDI Port 0", "destinationIP": "255.255.255.255", "sourcePort": 6553, "destPort": 6553, "jumpMode": 1, "levelMode": 1, "cueStackMode": 1, "tapToTempoMode": 1, "wingMode": 0}

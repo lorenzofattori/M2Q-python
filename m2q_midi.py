@@ -199,9 +199,9 @@ def midiSetup(settings, udpSocket, userInterface):
             "The previously saved MIDI interface is not found! \nUsing default one",
         )
     selectedPort = 0
-
     # update the selected interface in the UI
     userInterface.interfacesValue.set(ports[selectedPort])
+
     try:
         midiin, port_name = open_midiinput(selectedPort)
         # TODO, change this in UI item
