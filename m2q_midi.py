@@ -6,13 +6,29 @@ import sys
 import logging
 
 from rtmidi.midiutil import open_midiinput
+from rtmidi import NoDevicesError
+from tkinter import messagebox
+
+# used for getting midi ports
+from rtmidi import (
+    API_LINUX_ALSA,
+    API_MACOSX_CORE,
+    API_RTMIDI_DUMMY,
+    API_UNIX_JACK,
+    API_WINDOWS_MM,
+    MidiIn,
+    MidiOut,
+    get_compiled_api,
+)
 
 import m2q_comm
+import m2q_ui
+from m2q_ui import UserInterface
 
 
 # Class MidiInputHandler - Revised version of the rtmidi example for non-polling midi handling
 class MidiInputHandler(object):
-    def __init__(self, port, settings, udpSocket):
+    def __init__(self, port, settings, udpSocket, userInterface):
         self.port = port
         # self._wallclock = time.time()
         self.settings = settings
@@ -20,6 +36,7 @@ class MidiInputHandler(object):
         self.level = 0  # PB Level for Midi CC filtering
         self.chan = 16  # midi channel received, from 1 to 16 for CC filtering
         self.beatcounter = 0  # used for counting tap to tempo
+        self.userInterface = userInterface
 
     def __call__(self, event, data=None):
         # second variable is deltatime, no idea what it means and why using it
@@ -57,6 +74,9 @@ class MidiInputHandler(object):
             note = message[1]
             value = message[2]
 
+            # flash MIDIIN led
+            self.userInterface.flash("MIDI")
+
         else:
             logging.debug("Incoming midi type not supported")
             return
@@ -80,8 +100,9 @@ class MidiInputHandler(object):
         elif midiType == 0x80:
             # handles note off (deactivate cue stack triggering)
             if channel == 16:
-                # 3 = de-activate cuestack triggering
-                remoteMessage = m2q_comm.createMessage(3, channel, note, None)
+                if self.settings["cueStackMode"] == True:
+                    # 3 = de-activate cuestack triggering
+                    remoteMessage = m2q_comm.createMessage(3, channel, note, None)
 
         elif midiType == 0xB0:
             # handles control change (changes playback level)
@@ -90,7 +111,7 @@ class MidiInputHandler(object):
                 if note == 1:
                     # only send messages if value is different, filter for reducing messages
                     if channel != 16:
-                    #ch 16 only for cue stack, no level
+                        # ch 16 only for cue stack, no level
                         if value != self.level or channel != self.chan:
                             # save current values for next check
                             self.level = value
@@ -117,24 +138,86 @@ class MidiInputHandler(object):
                 remoteMessage,
                 self.settings["destinationIP"],
                 self.settings["destPort"],
+                self.userInterface,
             )
 
 
 # Midi setup - from the rtmidi example for non-polling midi handling
-def midiSetup(settings, udpSocket):
+def midiSetup(settings, udpSocket, userInterface):
     # Prompts user for MIDI input port, unless a valid port number or name
     # is given as the first argument on the command line.
     # API backend defaults to ALSA on Linux.
-    port = sys.argv[1] if len(sys.argv) > 1 else None
+    # port = sys.argv[1] if len(sys.argv) > 1 else None
+
+    apis = {
+        API_MACOSX_CORE: "macOS (OS X) CoreMIDI",
+        API_LINUX_ALSA: "Linux ALSA",
+        API_UNIX_JACK: "Jack Client",
+        API_WINDOWS_MM: "Windows MultiMedia",
+        API_RTMIDI_DUMMY: "RtMidi Dummy",
+    }
+
+    available_apis = get_compiled_api()
+
+    selectedPort = None
+    for api, api_name in sorted(apis.items()):
+        if api in available_apis:
+            name = "input"
+            class_ = MidiIn
+            try:
+                midi = class_(api)
+                ports = midi.get_ports()
+            except Exception as exc:
+                # this needs to be changed in popup
+                logging.warning("Could not probe MIDI %s ports: %s" % (name, exc))
+                continue
+
+            if not ports:
+                # this needs to be changed in popup
+                logging.warning("No MIDI %s ports found." % name)
+            else:
+                # this needs to be changed in popup
+                logging.info("Available MIDI %s ports:\n" % name)
+
+                for port, name in enumerate(ports):
+                    logging.info("[%i] %s" % (port, name))
+                    # This populates the list of interfaces in the UI
+                    if name not in userInterface.interfacesValue["values"]:
+                        userInterface.interfacesValue["values"] = (
+                            *userInterface.interfacesValue["values"],
+                            name,
+                        )
+                    if name == settings["interface"]:
+                        selectedPort = port
+
+            print("")
+            del midi
+
+    if selectedPort == None:
+        messagebox.showwarning(
+            "Not found!",
+            "The previously saved MIDI interface is not found! \nUsing default one",
+        )
+    selectedPort = 0
+    # update the selected interface in the UI
+    userInterface.interfacesValue.set(ports[selectedPort])
 
     try:
-        midiin, port_name = open_midiinput(port)
+        midiin, port_name = open_midiinput(selectedPort)
+        # TODO, change this in UI item
+        logging.debug(f"Name of the interface {port_name} ")
     except (EOFError, KeyboardInterrupt):
         sys.exit()
+    except NoDevicesError:
+        messagebox.showerror(
+            "Error",
+            "No MIDI input ports found \nConnect a MIDI input interface or start the MIDI Loopback adaptor",
+        )
+        sys.exit()
 
-    print("Attaching MIDI input callback handler.")
+    logging.debug("Attaching MIDI input callback handler.")
     midiin.ignore_types(timing=False)
-    midiin.set_callback(MidiInputHandler(port_name, settings, udpSocket))
+    midiin.set_callback(MidiInputHandler(port_name, settings, udpSocket, userInterface))
 
     return midiin
 

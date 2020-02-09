@@ -1,4 +1,5 @@
 import json
+import logging
 
 
 def loadSettings():
@@ -19,8 +20,8 @@ def loadSettings():
     except FileNotFoundError:
         print("Error, settings.json file not found, using default values")
 
-    print("Current settings:")
-    print(settings)
+    logging.debug("Current Settings:")
+    logging.debug(settings)
 
     return settings
 

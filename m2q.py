@@ -7,41 +7,50 @@
 
 # used libraries
 import logging
-
 import time
+import sys
+
+# UI stuff
+import tkinter as tk
+from tkinter import messagebox
+
+# from PIL import ImageTk, Image
 
 # other project files
 import m2q_midi
 import config
 import m2q_comm
 
+# import m2q_ui
+from m2q_ui import UserInterface
+
+
 logging.basicConfig(
-    format="%(levelname)s - %(asctime)s: %(message)s", level=logging.DEBUG
+    format="%(levelname)s - %(asctime)s: %(message)s", level=logging.INFO
 )
 
 
 # Main Function
 if __name__ == "__main__":
 
-    # load settings
+    # load settings on startup
     settings = config.loadSettings()
+
+    # Create UI
+    # window = m2q_ui.createUi(settings)
+    window = tk.Tk()
+    userInterface = UserInterface(window, settings)
 
     # initialize UDP socket
     udpSocket = m2q_comm.udpSetup(settings["destinationIP"])
 
     # initialize midi
-    midiin = m2q_midi.midiSetup(settings, udpSocket)
+    midiin = m2q_midi.midiSetup(settings, udpSocket, userInterface)
 
-    # This is the main loop in the example
-    print("Entering main loop. Press Control-C to exit.")
-    try:
-        # Just wait for keyboard interrupt,
-        # everything else is handled via the input callback.
-        while True:
-            time.sleep(10)
-    except KeyboardInterrupt:
-        print("")
-    finally:
-        print("Exit.")
-        midiin.close_port()
-        del midiin
+    # handle shutdown when the windows X is pressed
+    # it will be nice to have this in the userinterface class, but I don't know how to properly handle the midiin port closing and deleting of midiin, any idea?
+    window.protocol("WM_DELETE_WINDOW", lambda: userInterface.shutdown(midiin))
+
+    # everything is handled via the input callback, just refresh UI
+    window.mainloop()
+

@@ -33,15 +33,17 @@ def createMessage(messageType, channel, note, wingMode):
         return None
 
 
-def sendUdp(udpSocket, message, destinationIP, destPort):
+def sendUdp(udpSocket, message, destinationIP, destPort, userInterface):
     logging.debug(message)
     logging.debug(f"{destinationIP}, {destPort}")
 
     try:
         udpSocket.sendto(bytes(message, "utf-8"), (destinationIP, destPort))
+        userInterface.flash("chamsys")
     except socket.error:
         logging.warning("Failed send UDP")
-        sys.exit()
+        userInterface.flash("ERROR")
+        # sys.exit()
 
 
 def udpSetup(destinationIP):
@@ -52,10 +54,7 @@ def udpSetup(destinationIP):
         logging.warning("Failed to create UDP Socket")
         sys.exit()
 
-    # udpSocket.bind(("", srcPort))
-
-    # this command is used to enable broadcasts, if you use unicast it's not necessary
-    if destinationIP == "255.255.255.255":
-        udpSocket.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
+    # allow broadcasts
+    udpSocket.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
 
     return udpSocket
