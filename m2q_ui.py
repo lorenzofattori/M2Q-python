@@ -93,9 +93,7 @@ class UserInterface:
             fg="white",
             text="Set",
             width=5,
-            command=lambda: self.setDestinationIp(
-                self.interfacesValue.get(), "interface", settings
-            ),
+            command=lambda: self.setInterface(self.interfacesValue.get(), settings),
         )
 
         self.destinationIpLabel = tk.Label(
@@ -313,6 +311,19 @@ class UserInterface:
             font="Helvetica 12 bold",
         )
         self.errorLabel.grid(row=2, column=0)
+
+    def setInterface(self, entryValue, settings):
+        """
+        Handles the set button of the new interface
+        I don't know exactly how to do it, so for now it saves settings and close the program
+        help will be apprecated here
+        """
+        settings["interface"] = entryValue
+        messagebox.showinfo(
+            "Restart required",
+            "Currently you need to restart M2Q in order to apply the new interface \nPlease close and re-open M2Q",
+        )
+        self.saveSettings(settings)
 
     def setDestinationIp(self, entryValue, whichSetting, settings):
         """
