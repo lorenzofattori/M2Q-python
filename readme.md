@@ -20,6 +20,8 @@
 - M2Q Listens to MIDI Note, MIDI ControlChange and MIDI Clock messages incoming in the selected MIDI interface.
 - When one of these messages it's received, it gets processed and a Chamsys Remote message is sent out to the destination IP address and Port specified.
 - Works with both Chamsys consoles and MagicQ PC, software needs to be unlocked and only the first 10 playbacks are available in the PC version.
+- Just plug your midi interface, select it and start sending MIDI messages!
+- Do you want to re-route MIDI messages from other applications on Windows? Have a look at loopMIDI: https://www.tobias-erichsen.de/software/loopmidi.html
 
 ### Triggering Playbacks
 Triggering Playbacks is used for remotely activate and switch cues inside a playback of MagicQ. This can be useful for real-time cue triggering without having to use Timecode.
