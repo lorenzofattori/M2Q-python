@@ -7,6 +7,8 @@ import config
 
 class UserInterface:
     def __init__(self, window, settings):
+        self.midiInterface = None
+        self.udpSocket = None
         self.window = window
 
         window.title("M2Q")
@@ -93,7 +95,7 @@ class UserInterface:
             fg="white",
             text="Set",
             width=5,
-            command=lambda: self.setInterface(self.interfacesValue.get(), settings),
+            command=lambda: self.setInterface(self.interfacesValue, settings),
         )
 
         self.destinationIpLabel = tk.Label(
@@ -318,12 +320,12 @@ class UserInterface:
         I don't know exactly how to do it, so for now it saves settings and close the program
         help will be apprecated here
         """
-        settings["interface"] = entryValue
-        messagebox.showinfo(
-            "Restart required",
-            "Currently you need to restart M2Q in order to apply the new interface \nPlease close and re-open M2Q",
-        )
-        self.saveSettings(settings)
+
+        from m2q_midi import changeMidiPort
+        changeMidiPort(self, entryValue.current(), settings)
+
+        settings["interface"] = entryValue.get()
+        config.saveSettings(settings)
 
     def setDestinationIp(self, entryValue, whichSetting, settings):
         """
@@ -355,8 +357,9 @@ class UserInterface:
     def shutdown(self, midiin):
         if messagebox.askokcancel("Quit", "Do you want to quit?"):
             self.window.destroy()
-            midiin.close_port()
-            del midiin
+            if self.midi_interface:
+                self.midi_interface.close_port()
+                del self.midi_interface
             sys.exit()
 
     def flash(self, whichValue):
@@ -378,4 +381,3 @@ class UserInterface:
         if whichValue == "ERROR":
             self.errorLabel.config(fg="#C01914")
             self.errorLabel.after(1000, lambda: self.errorLabel.config(fg="black"))
-

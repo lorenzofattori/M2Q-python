@@ -43,9 +43,11 @@ if __name__ == "__main__":
 
     # initialize UDP socket
     udpSocket = m2q_comm.udpSetup(settings["destinationIP"])
+    userInterface.udp_socket = udpSocket
 
     # initialize midi
     midiin = m2q_midi.midiSetup(settings, udpSocket, userInterface)
+    userInterface.midi_interface = midiin
 
     # handle shutdown when the windows X is pressed
     # it will be nice to have this in the userinterface class, but I don't know how to properly handle the midiin port closing and deleting of midiin, any idea?
@@ -53,4 +55,3 @@ if __name__ == "__main__":
 
     # everything is handled via the input callback, just refresh UI
     window.mainloop()
-

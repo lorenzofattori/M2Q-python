@@ -5,8 +5,6 @@
 import sys
 import logging
 
-from rtmidi.midiutil import open_midiinput
-from rtmidi import NoDevicesError
 from tkinter import messagebox
 
 # used for getting midi ports
@@ -19,6 +17,7 @@ from rtmidi import (
     MidiIn,
     MidiOut,
     get_compiled_api,
+    midiutil,
 )
 
 import m2q_comm
@@ -28,8 +27,7 @@ from m2q_ui import UserInterface
 
 # Class MidiInputHandler - Revised version of the rtmidi example for non-polling midi handling
 class MidiInputHandler(object):
-    def __init__(self, port, settings, udpSocket, userInterface):
-        self.port = port
+    def __init__(self, settings, udpSocket, userInterface):
         # self._wallclock = time.time()
         self.settings = settings
         self.udpSocket = udpSocket
@@ -142,13 +140,7 @@ class MidiInputHandler(object):
             )
 
 
-# Midi setup - from the rtmidi example for non-polling midi handling
-def midiSetup(settings, udpSocket, userInterface):
-    # Prompts user for MIDI input port, unless a valid port number or name
-    # is given as the first argument on the command line.
-    # API backend defaults to ALSA on Linux.
-    # port = sys.argv[1] if len(sys.argv) > 1 else None
-
+def probeMidiPorts():
     apis = {
         API_MACOSX_CORE: "macOS (OS X) CoreMIDI",
         API_LINUX_ALSA: "Linux ALSA",
@@ -159,65 +151,79 @@ def midiSetup(settings, udpSocket, userInterface):
 
     available_apis = get_compiled_api()
 
-    selectedPort = None
     for api, api_name in sorted(apis.items()):
         if api in available_apis:
-            name = "input"
-            class_ = MidiIn
             try:
-                midi = class_(api)
+                midi = MidiIn(api)
                 ports = midi.get_ports()
-            except Exception as exc:
-                # this needs to be changed in popup
-                logging.warning("Could not probe MIDI %s ports: %s" % (name, exc))
-                continue
+            except StandardError as exc:
+                logging.warning("Could not probe MIDI input ports: %s" % (exc))
+                return []
 
-            if not ports:
-                # this needs to be changed in popup
-                logging.warning("No MIDI %s ports found." % name)
-            else:
-                # this needs to be changed in popup
-                logging.info("Available MIDI %s ports:\n" % name)
-
-                for port, name in enumerate(ports):
-                    logging.info("[%i] %s" % (port, name))
-                    # This populates the list of interfaces in the UI
-                    if name not in userInterface.interfacesValue["values"]:
-                        userInterface.interfacesValue["values"] = (
-                            *userInterface.interfacesValue["values"],
-                            name,
-                        )
-                    if name == settings["interface"]:
-                        selectedPort = port
-
-            print("")
             del midi
 
-    if selectedPort == None:
-        messagebox.showwarning(
-            "Not found!",
-            "The previously saved MIDI interface is not found! \nUsing default one",
-        )
+            if not ports:
+                return []
+            else:
+                # get_ports returns a list of ports in the order of the ports.
+                # The port name contains the port number we don't want so let's strip it away
+                renamed_ports = []
+                for index, port in enumerate(ports):
+                    port = port[: -(len(str(index)) + 1)]
+                    renamed_ports.append(port)
+                return renamed_ports
 
-    # update the selected interface in the UI
-    userInterface.interfacesValue.set(ports[selectedPort])
+
+def activateMidiPort(userInterface, selectedPort):
+    midiin, port_name = midiutil.open_midiinput(selectedPort)
+    UISetMidiPort(userInterface, selectedPort)
+
+    return midiin, port_name
+
+
+def changeMidiPort(userInterface, newPortIndex, settings):
+    userInterface.midiInterface.close_port()
+    userInterface.midiInterface.open_port(new_port_index)
+    userInterface.midiInterface.set_callback(
+        MidiInputHandler(settings, userInterface.udpSocket, userInterface)
+    )
+
+
+def UISetMidiPortsChoices(userInterface, ports):
+    for port, name in enumerate(ports):
+        if name not in userInterface.interfacesValue["values"]:
+            userInterface.interfacesValue["values"] = (
+                *userInterface.interfacesValue["values"],
+                name,
+            )
+
+
+def UISetMidiPort(userInterface, port):
+    userInterface.interfacesValue.set(port)
+
+
+# Midi setup - from the rtmidi example for non-polling midi handling
+def midiSetup(settings, udpSocket, userInterface):
+    ports = probeMidiPorts()
+
+    # Todo: What should be done when there is no ports available?
+    if not ports:
+        return
 
     try:
-        midiin, port_name = open_midiinput(selectedPort)
-        # TODO, change this in UI item
-        logging.debug(f"Name of the interface {port_name} ")
-    except (EOFError, KeyboardInterrupt):
-        sys.exit()
-    except NoDevicesError:
-        messagebox.showerror(
-            "Error",
-            "No MIDI input ports found \nConnect a MIDI input interface or start the MIDI Loopback adaptor",
-        )
-        sys.exit()
+        if settings["interface"] in ports:
+            selectedPort = settings["interface"]
+        else:
+            selectedPort = ports[0]
+    except KeyError:
+        selectedPort = ports[0]
+
+    UISetMidiPortsChoices(userInterface, ports)
+
+    midiin, port_name = activateMidiPort(userInterface, selectedPort)
 
     logging.debug("Attaching MIDI input callback handler.")
     midiin.ignore_types(timing=False)
-    midiin.set_callback(MidiInputHandler(port_name, settings, udpSocket, userInterface))
+    midiin.set_callback(MidiInputHandler(settings, udpSocket, userInterface))
 
     return midiin
-
