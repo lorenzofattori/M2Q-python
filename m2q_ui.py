@@ -1,6 +1,7 @@
 import tkinter as tk
 from tkinter import messagebox, ttk
 import sys
+import os
 
 import config
 
@@ -13,7 +14,14 @@ class UserInterface:
 
         window.title("M2Q")
         window.configure(background="black")
-        window.iconbitmap(r"m2q.ico")
+
+        # PyInstaller has a different path for the icon file so we need to find it
+        if getattr(sys, 'frozen', False):
+            application_path = sys._MEIPASS
+        elif __file__:
+            application_path = os.path.dirname(__file__)
+
+        window.iconbitmap(os.path.join(application_path, "m2q.ico"))
 
         # Create main containers and lay them out
         self.titleFrame = tk.Frame(window, background="black")
@@ -32,12 +40,12 @@ class UserInterface:
             self.titleFrame, width=350, height=240, bg="black", highlightthickness=0
         )
 
-        self.logoImg = tk.PhotoImage(file="m2q-logo-v2.png")
+        self.logoImg = tk.PhotoImage(file=os.path.join(application_path, "m2q-logo-v2.png"))
         self.logoCanvas.create_image(175, 80, image=self.logoImg)
         self.fakeLabel = tk.Label(image=self.logoImg)
         self.fakeLabel.image = self.logoImg  # keep a reference if not desappears
 
-        self.img = tk.PhotoImage(file="m2q-logo-v2-text.png")
+        self.img = tk.PhotoImage(file=os.path.join(application_path, "m2q-logo-v2-text.png"))
         self.logoCanvas.create_image(175, 188, image=self.img)
         self.fakeLabel = tk.Label(image=self.img)
         self.fakeLabel.image = self.img  # keep a reference if not desappears
