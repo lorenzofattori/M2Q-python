@@ -43,7 +43,7 @@ if __name__ == "__main__":
     userInterface = UserInterface(window, settings)
 
     # initialize UDP socket
-    udpSocket = m2q_comm.udpSetup(settings["destinationIP"])
+    udpSocket = m2q_comm.udpSetup()
     userInterface.udp_socket = udpSocket
 
     # initialize midi

@@ -46,7 +46,7 @@ def sendUdp(udpSocket, message, destinationIP, destPort, userInterface):
         # sys.exit()
 
 
-def udpSetup(destinationIP):
+def udpSetup():
 
     try:
         udpSocket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
