@@ -26,6 +26,8 @@ class Test_m2q_comm(unittest.TestCase):
         wingMode = False
         self.assertEqual(createMessage(0, 1, 0, wingMode), "1,0,0J")
         self.assertEqual(createMessage(1, 1, 1, wingMode), "1,1,L")
+
+    def test_createMessage_yesWingMode(self):
         wingMode = True
         self.assertEqual(createMessage(0, 1, 0, wingMode), "11,0,0J")
         self.assertEqual(createMessage(1, 1, 1, wingMode), "11,1,L")
