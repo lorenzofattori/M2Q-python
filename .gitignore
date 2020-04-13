@@ -3,5 +3,5 @@ midiTest
 __pycache__
 venv
 m2q.code-workspace
-dist
-build
+dist/
+build/
