@@ -16,8 +16,3 @@ class Test_M2Q_MIDI(unittest.TestCase):
         mock_MidiIn().get_ports.return_value = ["loopMIDI Port 1 1"]
         ports = probeMidiPorts()
         self.assertEqual(ports, ["loopMIDI Port 1"])
-
-
-class Test_m2q_comm(unittest.TestCase):
-    def test_createMessage(self):
-        pass
