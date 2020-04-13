@@ -1,8 +1,9 @@
 #   m2q.py
-#   THIS IS m2q in python
-#   version 0.1
-#   Date: 27/12/2019
+#   This m2q in python
+#   version 1.0
+#   Date: 13/04/2019
 #   Author: Lorenzo Fattori
+#   More Info: https://github.com/lorenzofattori/M2Q
 #
 
 # used libraries
