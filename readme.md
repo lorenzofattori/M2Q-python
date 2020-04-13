@@ -59,3 +59,11 @@ When selected, it will trigger the playbacks from 11 to 25 instead of 1 to 25, i
 - Settings > Ports > Remote trigger action: Tap to time sel PB
 - Settings > Playback > Crossfade button function: Global Tap to time
 
+
+# Support the project with a Donation!
+M2Q Took hundreds of hours in thinking, testing, refining and programming.
+After many yeas with the idea of M2Q in mind and different prototypes, I finally decided to switch from hardware to Python software and offer it for free for the entire lighting community.
+If you like the software and you want to show your appreciation you can make a donation via PayPal: paypal.me/lorenzofattori
+You don't have paypal but you want to donate anyway? Contact me!
+
+Are you interest in the more powerful, professional and easy to use hardware version of M2Q? I still have products available, contact me!
