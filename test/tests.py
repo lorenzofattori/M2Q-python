@@ -52,6 +52,40 @@ class Test_m2q_comm(unittest.TestCase):
         messageType = 4
         self.assertEqual(createMessage(messageType, 1, 0, False), "\\<71>,2H")
 
-    def test_createMessage_messageType5(self):
+    def test_createMessage_messageTypeOutOfValue(self):
         messageType = 5
         self.assertEqual(createMessage(messageType, 1, 0, False), None)
+        messageType = -3
+        self.assertEqual(createMessage(messageType, 1, 0, False), None)
+        messageType = 9999
+        self.assertEqual(createMessage(messageType, 1, 0, False), None)
+
+    def test_createMessage_testGoodNoteValue(self):
+        note = 10
+        self.assertEqual(createMessage(0, 1, note, False), "1,10,0J")
+        note = 123
+        self.assertEqual(createMessage(0, 1, note, False), "1,123,0J")
+        note = 8
+        self.assertEqual(createMessage(0, 1, note, False), "1,8,0J")
+
+    def test_createMessage_testNotGoodNoteValue(self):
+        note = 135
+        self.assertEqual(createMessage(0, 1, note, False), None)
+        note = -3
+        self.assertEqual(createMessage(0, 1, note, False), None)
+        note = 9999
+        self.assertEqual(createMessage(0, 1, note, False), None)
+
+    def test_createMessage_testGoodChannelValue(self):
+        channel = 10
+        self.assertEqual(createMessage(0, channel, 10, False), "10,10,0J")
+        channel = 6
+        self.assertEqual(createMessage(0, channel, 10, False), "6,10,0J")
+
+    def test_createMessage_testNotGoodChannelValue(self):
+        channel = 16
+        self.assertEqual(createMessage(0, channel, 10, False), None)
+        channel = -3
+        self.assertEqual(createMessage(0, channel, 10, False), None)
+        channel = 9999
+        self.assertEqual(createMessage(0, channel, 10, False), None)

@@ -10,6 +10,12 @@ def createMessage(messageType, channel, note, wingMode):
         f"createMessage: messageType: {messageType}, channel: {channel}, note: {note}"
     )
 
+    # Handles weird case where note or channel are out of the expected midi ranges
+    if note < 0 or note > 127:
+        return None
+    if channel < 0 or channel > 15:
+        return None
+
     if wingMode == True:
         # check if wingmode is activated (move playback to +10)
         channel += 10
