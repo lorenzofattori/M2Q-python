@@ -48,7 +48,7 @@ def main():
     # handle shutdown when the windows X is pressed
     # it will be nice to have this in the UserInterface class, but I don't
     # know how to properly handle the midiin port closing and deleting of midiin, any idea?
-    window.protocol("WM_DELETE_WINDOW", user_interface.shutdown())
+    window.protocol("WM_DELETE_WINDOW", user_interface.shutdown)
 
     window.after(5000, m2q_midi.refresh_midi_interfaces, user_interface, window)
 
