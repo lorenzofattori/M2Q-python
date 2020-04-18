@@ -151,7 +151,7 @@ def probeMidiPorts():
 
     available_apis = get_compiled_api()
 
-    for api, api_name in sorted(apis.items()):
+    for api, apiName in sorted(apis.items()):
         if api in available_apis:
             try:
                 midi = MidiIn(api)
@@ -183,7 +183,7 @@ def activateMidiPort(userInterface, selectedPort):
 
 def changeMidiPort(userInterface, newPortIndex, settings):
     userInterface.midiInterface.close_port()
-    userInterface.midiInterface.open_port(new_port_index)
+    userInterface.midiInterface.open_port(newPortIndex)
     userInterface.midiInterface.set_callback(
         MidiInputHandler(settings, userInterface.udpSocket, userInterface)
     )
@@ -220,7 +220,7 @@ def midiSetup(settings, udpSocket, userInterface):
 
     UISetMidiPortsChoices(userInterface, ports)
 
-    midiin, port_name = activateMidiPort(userInterface, selectedPort)
+    midiin, portName = activateMidiPort(userInterface, selectedPort)
 
     logging.debug("Attaching MIDI input callback handler.")
     midiin.ignore_types(timing=False)

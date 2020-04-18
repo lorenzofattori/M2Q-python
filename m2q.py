@@ -48,7 +48,7 @@ if __name__ == "__main__":
 
     # initialize midi
     midiin = m2q_midi.midiSetup(settings, udpSocket, userInterface)
-    userInterface.midi_interface = midiin
+    userInterface.midiInterface = midiin
 
     # handle shutdown when the windows X is pressed
     # it will be nice to have this in the userinterface class, but I don't know how to properly handle the midiin port closing and deleting of midiin, any idea?
