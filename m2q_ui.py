@@ -8,8 +8,8 @@ import config
 
 class UserInterface:
     def __init__(self, window, settings):
-        self.midiInterface = None
-        self.udpSocket = None
+        self.midi_interface = None
+        self.udp_socket = None
         self.window = window
 
         window.title("M2Q")
@@ -17,71 +17,71 @@ class UserInterface:
 
         # PyInstaller has a different path for the icon file so we need to find it
         if getattr(sys, 'frozen', False):
-            application_path = sys._MEIPASS
+            application_path = sys._MEIPASS # pylint: disable=no-member
         elif __file__:
             application_path = os.path.dirname(__file__)
 
         window.iconbitmap(os.path.join(application_path, "m2q.ico"))
 
         # Create main containers and lay them out
-        self.titleFrame = tk.Frame(window, background="black")
-        self.controlFrame = tk.Frame(window, background="black")
-        self.statusFrame = tk.Frame(window, background="black")
+        self.title_frame = tk.Frame(window, background="black")
+        self.control_frame = tk.Frame(window, background="black")
+        self.status_frame = tk.Frame(window, background="black")
 
         window.grid_rowconfigure(1, weight=1)
         window.grid_columnconfigure(0, weight=1)
 
-        self.titleFrame.grid(row=0)
-        self.controlFrame.grid(row=1)
-        self.statusFrame.grid(row=3)
+        self.title_frame.grid(row=0)
+        self.control_frame.grid(row=1)
+        self.status_frame.grid(row=3)
 
         # Populate Frame title and lay it out
-        self.logoCanvas = tk.Canvas(
-            self.titleFrame, width=350, height=240, bg="black", highlightthickness=0
+        self.logo_canvas = tk.Canvas(
+            self.title_frame, width=350, height=240, bg="black", highlightthickness=0
         )
 
-        self.logoImg = tk.PhotoImage(file=os.path.join(application_path, "m2q-logo-v2.png"))
-        self.logoCanvas.create_image(175, 80, image=self.logoImg)
-        self.fakeLabel = tk.Label(image=self.logoImg)
-        self.fakeLabel.image = self.logoImg  # keep a reference if not desappears
+        self.logo_img = tk.PhotoImage(file=os.path.join(application_path, "m2q-logo-v2.png"))
+        self.logo_canvas.create_image(175, 80, image=self.logo_img)
+        self.fake_label = tk.Label(image=self.logo_img)
+        self.fake_label.image = self.logo_img  # keep a reference if not desappears
 
         self.img = tk.PhotoImage(file=os.path.join(application_path, "m2q-logo-v2-text.png"))
-        self.logoCanvas.create_image(175, 188, image=self.img)
-        self.fakeLabel = tk.Label(image=self.img)
-        self.fakeLabel.image = self.img  # keep a reference if not desappears
+        self.logo_canvas.create_image(175, 188, image=self.img)
+        self.fake_label = tk.Label(image=self.img)
+        self.fake_label.image = self.img  # keep a reference if not desappears
 
-        self.titleLabel = tk.Label(
-            self.titleFrame,
+        self.title_label = tk.Label(
+            self.title_frame,
             text="Version 1.0   by Lorenzo Fattori",
             bg="black",
             fg="white",
             font="Helvetica 16 bold",
         )
 
-        self.lineLabel = tk.Label(
-            self.titleFrame,
+        self.line_label = tk.Label(
+            self.title_frame,
             text="_________________________",
             bg="black",
             fg="white",
             font="Helvetica 18 bold",
         )
 
-        self.logoCanvas.grid(row=0)
-        self.titleLabel.grid(row=1)
-        self.lineLabel.grid(row=2)
+        self.logo_canvas.grid(row=0)
+        self.title_label.grid(row=1)
+        self.line_label.grid(row=2)
 
         # Control Frame
-        self.settingsLabel = tk.Label(
-            self.controlFrame,
+        self.settings_label = tk.Label(
+            self.control_frame,
             text="Settings",
             bg="black",
             fg="white",
             font="Helvetica 16 bold",
         )
-        self.settingsLabel.config(anchor="w")
+        self.settings_label.config(anchor="w")
 
-        self.interfacesLabel = tk.Label(
-            self.controlFrame,
+        self.interfaces_label = tk.Label(
+            self.control_frame,
             text="MIDI Interface:",
             bg="black",
             fg="white",
@@ -92,167 +92,167 @@ class UserInterface:
         style.configure(
             "TLabel", foreground="white", background="black",
         )
-        self.interfacesList = []
-        self.interfacesValue = ttk.Combobox(
-            self.controlFrame, values=self.interfacesList, style="TLabel"
+        self.interfaces_list = []
+        self.interfaces_value = ttk.Combobox(
+            self.control_frame, values=self.interfaces_list, style="TLabel"
         )
 
-        self.interfacesSetButton = tk.Button(
-            self.controlFrame,
+        self.interfaces_set_button = tk.Button(
+            self.control_frame,
             bg="black",
             fg="white",
             text="Set",
             width=5,
-            command=lambda: self.setInterface(self.interfacesValue, settings),
+            command=lambda: self.set_interface(self.interfaces_value, settings),
         )
 
-        self.destinationIpLabel = tk.Label(
-            self.controlFrame,
+        self.destination_ip_label = tk.Label(
+            self.control_frame,
             text="Destination IP Address:",
             bg="black",
             fg="white",
             font="Helvetica 10 bold",
         )
 
-        self.destinationIpTkVar = tk.StringVar()
-        self.destinationIpTkVar.set(settings["destinationIP"])
-        self.destinationIpValue = tk.Entry(
-            self.controlFrame,
+        self.destination_ip_tk_var = tk.StringVar()
+        self.destination_ip_tk_var.set(settings["destinationIP"])
+        self.destination_ip_value = tk.Entry(
+            self.control_frame,
             bg="black",
             fg="white",
             insertbackground="white",
-            textvariable=self.destinationIpTkVar,
+            textvariable=self.destination_ip_tk_var,
         )
 
-        self.destinationIpSetButton = tk.Button(
-            self.controlFrame,
+        self.destination_ip_set_button = tk.Button(
+            self.control_frame,
             bg="black",
             fg="white",
             text="Set",
             width=5,
-            command=lambda: self.setDestinationIp(
-                self.destinationIpValue.get(), "destinationIP", settings
+            command=lambda: self.set_destination_ip(
+                self.destination_ip_value.get(), "destinationIP", settings
             ),
         )
 
-        self.destinationPortLabel = tk.Label(
-            self.controlFrame,
+        self.destination_port_label = tk.Label(
+            self.control_frame,
             text="Destination Port:",
             bg="black",
             fg="white",
             font="Helvetica 10 bold",
         )
 
-        self.destinationPortTkVar = tk.IntVar()
-        self.destinationPortTkVar.set(settings["destPort"])
-        self.destinationPortValue = tk.Entry(
-            self.controlFrame,
+        self.destination_port_tk_var = tk.IntVar()
+        self.destination_port_tk_var.set(settings["destPort"])
+        self.destination_port_value = tk.Entry(
+            self.control_frame,
             bg="black",
             fg="white",
             insertbackground="white",
-            textvariable=self.destinationPortTkVar,
+            textvariable=self.destination_port_tk_var,
         )
 
-        self.destinationPortSetButton = tk.Button(
-            self.controlFrame,
+        self.destination_port_set_button = tk.Button(
+            self.control_frame,
             bg="black",
             fg="white",
             text="Set",
             width=5,
-            command=lambda: self.setDestinationIp(
-                int(self.destinationPortValue.get()), "destPort", settings
+            command=lambda: self.set_destination_ip(
+                int(self.destination_port_value.get()), "destPort", settings
             ),
         )
 
         # Checkbox for Settings
-        self.cueTriggerTkVar = tk.BooleanVar()
-        self.cueTriggerTkVar.set(bool(settings["jumpMode"]))
-        self.cueTriggerValue = tk.Checkbutton(
-            self.controlFrame,
+        self.cue_trigger_tk_var = tk.BooleanVar()
+        self.cue_trigger_tk_var.set(bool(settings["jumpMode"]))
+        self.cue_trigger_value = tk.Checkbutton(
+            self.control_frame,
             text="Cue Trigger",
             bg="black",
             fg="white",
             selectcolor="black",
             font="Helvetica 10 bold",
-            variable=self.cueTriggerTkVar,
-            command=lambda: self.toggleCheckboxValue(
-                self.cueTriggerTkVar.get(), "jumpMode", settings
+            variable=self.cue_trigger_tk_var,
+            command=lambda: self.toggle_checkbox_value(
+                self.cue_trigger_tk_var.get(), "jumpMode", settings
             ),
         )
 
-        self.levelTriggerTkVar = tk.BooleanVar()
-        self.levelTriggerTkVar.set(bool(settings["levelMode"]))
-        self.levelTriggerValue = tk.Checkbutton(
-            self.controlFrame,
+        self.level_trigger_tk_var = tk.BooleanVar()
+        self.level_trigger_tk_var.set(bool(settings["levelMode"]))
+        self.level_trigger_value = tk.Checkbutton(
+            self.control_frame,
             text="Level Trigger",
             bg="black",
             fg="white",
             selectcolor="black",
             font="Helvetica 10 bold",
-            variable=self.levelTriggerTkVar,
-            command=lambda: self.toggleCheckboxValue(
-                self.levelTriggerTkVar.get(), "levelMode", settings
+            variable=self.level_trigger_tk_var,
+            command=lambda: self.toggle_checkbox_value(
+                self.level_trigger_tk_var.get(), "levelMode", settings
             ),
         )
 
-        self.cueStackTriggerTkVar = tk.BooleanVar()
-        self.cueStackTriggerTkVar.set(bool(settings["cueStackMode"]))
-        self.cueStackTriggerValue = tk.Checkbutton(
-            self.controlFrame,
+        self.cue_stack_trigger_tk_var = tk.BooleanVar()
+        self.cue_stack_trigger_tk_var.set(bool(settings["cueStackMode"]))
+        self.cue_stack_trigger_value = tk.Checkbutton(
+            self.control_frame,
             text="CueStack Trigger",
             bg="black",
             fg="white",
             selectcolor="black",
             font="Helvetica 10 bold",
-            variable=self.cueStackTriggerTkVar,
-            command=lambda: self.toggleCheckboxValue(
-                self.cueStackTriggerTkVar.get(), "cueStackMode", settings
+            variable=self.cue_stack_trigger_tk_var,
+            command=lambda: self.toggle_checkbox_value(
+                self.cue_stack_trigger_tk_var.get(), "cueStackMode", settings
             ),
         )
 
-        self.tap2TempoTriggerTkVar = tk.BooleanVar()
-        self.tap2TempoTriggerTkVar.set(bool(settings["tapToTempoMode"]))
-        self.tap2TempoTriggerValue = tk.Checkbutton(
-            self.controlFrame,
+        self.tap_2_tempo_trigger_tk_var = tk.BooleanVar()
+        self.tap_2_tempo_trigger_tk_var.set(bool(settings["tapToTempoMode"]))
+        self.tap_2_tempo_trigger_value = tk.Checkbutton(
+            self.control_frame,
             text="Tap2Tempo Trigger",
             bg="black",
             fg="white",
             selectcolor="black",
             font="Helvetica 10 bold",
-            variable=self.tap2TempoTriggerTkVar,
-            command=lambda: self.toggleCheckboxValue(
-                self.tap2TempoTriggerTkVar.get(), "tapToTempoMode", settings
+            variable=self.tap_2_tempo_trigger_tk_var,
+            command=lambda: self.toggle_checkbox_value(
+                self.tap_2_tempo_trigger_tk_var.get(), "tapToTempoMode", settings
             ),
         )
 
-        self.wingModeTkVar = tk.BooleanVar()
-        self.wingModeTkVar.set(bool(settings["wingMode"]))
-        self.wingModeValue = tk.Checkbutton(
-            self.controlFrame,
+        self.wing_mode_tk_var = tk.BooleanVar()
+        self.wing_mode_tk_var.set(bool(settings["wingMode"]))
+        self.wing_mode_value = tk.Checkbutton(
+            self.control_frame,
             text="Wing Mode",
             bg="black",
             fg="white",
             selectcolor="black",
             font="Helvetica 10 bold",
-            variable=self.wingModeTkVar,
-            command=lambda: self.toggleCheckboxValue(
-                self.wingModeTkVar.get(), "wingMode", settings
+            variable=self.wing_mode_tk_var,
+            command=lambda: self.toggle_checkbox_value(
+                self.wing_mode_tk_var.get(), "wingMode", settings
             ),
         )
 
         # Save and Load Settings Buttons
-        self.saveSettingsButton = tk.Button(
-            self.controlFrame,
+        self.save_settings_button = tk.Button(
+            self.control_frame,
             bg="black",
             fg="white",
             text="Save Settings",
             width=15,
             font="Helvetica 10 bold",
-            command=lambda: self.saveSettings(settings),
+            command=lambda: self.save_settings(settings),
         )
 
         # self.loadSettingsButton = tk.Button(
-        #     self.controlFrame,
+        #     self.control_frame,
         #     bg="black",
         #     fg="white",
         #     text="Load Settings",
@@ -260,109 +260,110 @@ class UserInterface:
         #     #command=lambda: self.loadSettings(window),
         # )
 
-        self.settingsLabel.grid(row=0, columnspan=3, pady=5)
-        self.controlFrame.grid_rowconfigure(1, minsize=10)
+        self.settings_label.grid(row=0, columnspan=3, pady=5)
+        self.control_frame.grid_rowconfigure(1, minsize=10)
 
-        self.interfacesLabel.grid(sticky="W", row=1, column=0)
-        self.interfacesValue.grid(row=1, column=1)
-        self.interfacesSetButton.grid(row=1, column=2, padx=2)
+        self.interfaces_label.grid(sticky="W", row=1, column=0)
+        self.interfaces_value.grid(row=1, column=1)
+        self.interfaces_set_button.grid(row=1, column=2, padx=2)
 
-        self.destinationIpLabel.grid(sticky="W", row=2, column=0)
-        self.destinationIpValue.grid(row=2, column=1, padx=5)
-        self.destinationIpSetButton.grid(row=2, column=2, padx=2)
+        self.destination_ip_label.grid(sticky="W", row=2, column=0)
+        self.destination_ip_value.grid(row=2, column=1, padx=5)
+        self.destination_ip_set_button.grid(row=2, column=2, padx=2)
 
-        self.destinationPortLabel.grid(sticky="W", row=3, column=0)
-        self.destinationPortValue.grid(row=3, column=1, padx=5)
-        self.destinationPortSetButton.grid(row=3, column=2, padx=2)
+        self.destination_port_label.grid(sticky="W", row=3, column=0)
+        self.destination_port_value.grid(row=3, column=1, padx=5)
+        self.destination_port_set_button.grid(row=3, column=2, padx=2)
 
-        self.cueTriggerValue.grid(sticky="W", row=4, column=0, columnspan=2)
-        self.levelTriggerValue.grid(sticky="W", row=5, column=0, columnspan=2)
-        self.cueStackTriggerValue.grid(sticky="W", row=6, column=0, columnspan=2)
-        self.tap2TempoTriggerValue.grid(sticky="W", row=7, column=0, columnspan=2)
-        self.wingModeValue.grid(sticky="W", row=9, column=0, columnspan=2)
+        self.cue_trigger_value.grid(sticky="W", row=4, column=0, columnspan=2)
+        self.level_trigger_value.grid(sticky="W", row=5, column=0, columnspan=2)
+        self.cue_stack_trigger_value.grid(sticky="W", row=6, column=0, columnspan=2)
+        self.tap_2_tempo_trigger_value.grid(sticky="W", row=7, column=0, columnspan=2)
+        self.wing_mode_value.grid(sticky="W", row=9, column=0, columnspan=2)
 
-        self.saveSettingsButton.grid(row=6, column=1, columnspan=2, padx=5)
+        self.save_settings_button.grid(row=6, column=1, columnspan=2, padx=5)
         # self.loadSettingsButton.grid(row=8, column=1)
 
         # Populate Status frame and lay it out
-        self.lineLabel2 = tk.Label(
-            self.statusFrame,
+        self.line_label_2 = tk.Label(
+            self.status_frame,
             text="_________________________",
             bg="black",
             fg="white",
             font="Helvetica 18 bold",
         )
 
-        self.lineLabel2.grid(row=0)
+        self.line_label_2.grid(row=0)
 
-        self.midiInLabel = tk.Label(
-            self.statusFrame,
+        self.midi_in_label = tk.Label(
+            self.status_frame,
             text="MIDI IN",
             bg="black",
             fg="white",
             font="Helvetica 10 bold",
         )
-        self.midiInLabel.grid(sticky="W", row=1, column=0)
+        self.midi_in_label.grid(sticky="W", row=1, column=0)
 
-        self.chamsysOutLabel = tk.Label(
-            self.statusFrame,
+        self.chamsys_out_label = tk.Label(
+            self.status_frame,
             text="CHAMSYS OUT",
             bg="black",
             fg="white",
             font="Helvetica 10 bold",
         )
-        self.chamsysOutLabel.grid(sticky="E", row=1, column=0)
+        self.chamsys_out_label.grid(sticky="E", row=1, column=0)
 
-        self.errorLabel = tk.Label(
-            self.statusFrame,
+        self.error_label = tk.Label(
+            self.status_frame,
             text="ERROR",
             bg="black",
             fg="black",
             font="Helvetica 12 bold",
         )
-        self.errorLabel.grid(row=2, column=0)
+        self.error_label.grid(row=2, column=0)
 
-    def setInterface(self, entryValue, settings):
+    def set_interface(self, entry_value, settings):
         """
         Handles the set button of the new interface
         I don't know exactly how to do it, so for now it saves settings and close the program
         help will be apprecated here
         """
 
-        from m2q_midi import changeMidiPort
-        changeMidiPort(self, entryValue.current(), settings)
+        change_midi_port(self, entry_value.current(), settings)
 
-        settings["interface"] = entryValue.get()
-        config.saveSettings(settings)
+        settings["interface"] = entry_value.get()
+        config.save_settings(settings)
 
-    def setDestinationIp(self, entryValue, whichSetting, settings):
+    def set_destination_ip(self, entry_value, which_setting, settings):
         """
         This function handles changes of the entry values for interface, IP address and port
-        It's called by when pressing one of the Set vuttons, and changes the current settings with the new value
+        It's called by when pressing one of the Set vuttons, and changes the
+        current settings with the new value
         """
         # TODO, make a validation check before setting it?
         # print(f"entryValue is {entryValue}")
-        settings[whichSetting] = entryValue
+        settings[which_setting] = entry_value
 
-    def toggleCheckboxValue(self, toggleValue, whichSetting, settings):
+    def toggle_checkbox_value(self, toggle_value, which_setting, settings):
         """
         This function handles the clicking of the CheckBox for settings
-        It's called by the checkbox itselfs, it checks if the checkbox is selected or not and changes the current settings with the new value
+        It's called by the checkbox itselfs, it checks if the checkbox is selected or not
+        and changes the current settings with the new value
         """
         # print(f"toggleValue is {toggleValue}")
-        if toggleValue == True:
-            settings[whichSetting] = 1
+        if toggle_value:
+            settings[which_setting] = 1
         else:
-            settings[whichSetting] = 0
+            settings[which_setting] = 0
 
-    def saveSettings(self, settings):
+    def save_settings(self, settings):
         """
         Called when ckicking on Save Settings
         """
         if messagebox.askokcancel("Save Settings", "Do you want to save settings?"):
-            config.saveSettings(settings)
+            config.save_settings(settings)
 
-    def shutdown(self, midiin):
+    def shutdown(self):
         if messagebox.askokcancel("Quit", "Do you want to quit?"):
             self.window.destroy()
             if self.midi_interface:
@@ -370,22 +371,23 @@ class UserInterface:
                 del self.midi_interface
             sys.exit()
 
-    def flash(self, whichValue):
+    def flash(self, which_value):
         """
-        Flash the IN/OUT labels when a midi message is received or a chamsys out message is sent out+
-        whichValue can be "MIDI", "chamsys" or "ERROR"
+        Flash the IN/OUT labels when a midi message is received or
+        a chamsys out message is sent out
+        which_value can be "MIDI", "chamsys" or "ERROR"
         """
 
-        if whichValue == "MIDI":
-            self.midiInLabel.config(fg="#C01914")
-            self.midiInLabel.after(200, lambda: self.midiInLabel.config(fg="white"))
+        if which_value == "MIDI":
+            self.midi_in_label.config(fg="#C01914")
+            self.midi_in_label.after(200, lambda: self.midi_in_label.config(fg="white"))
 
-        if whichValue == "chamsys":
-            self.chamsysOutLabel.config(fg="#C01914")
-            self.chamsysOutLabel.after(
-                200, lambda: self.chamsysOutLabel.config(fg="white")
+        if which_value == "chamsys":
+            self.chamsys_out_label.config(fg="#C01914")
+            self.chamsys_out_label.after(
+                200, lambda: self.chamsys_out_label.config(fg="white")
             )
 
-        if whichValue == "ERROR":
-            self.errorLabel.config(fg="#C01914")
-            self.errorLabel.after(1000, lambda: self.errorLabel.config(fg="black"))
+        if which_value == "ERROR":
+            self.error_label.config(fg="#C01914")
+            self.error_label.after(1000, lambda: self.error_label.config(fg="black"))

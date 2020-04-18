@@ -1,22 +1,27 @@
 ### Installing development environment
 
 Install python 3.x
-python -m venv venv
-.\venv\Scripts\activate
+
+Create a virtualenv and activate it
+
+``` python -m venv venv ```
+
+```.\venv\Scripts\activate ```
 
 make sure you are using a recent pip version, it might be neccesary to install a newer version with
-python -m pip install --upgrade pip
-pip install --upgrade setuptools
+
+``` python -m pip install --upgrade pip ```
 
 install dependencies with
-pip install -r requirements.txt
+
+``` pip install -r requirements.txt ```
 
 To run the software
-python .\m2q.py 
 
+``` python .\m2q.py ```
 
 ### Creating a new release
-Package the source code into a exe file with PyInstaller by running this command in the project source directory
-.\package.bat
+in VS Code you can run unittests, lint and packge with the shortcut
+``` Shift + Ctrl + B ```
 
-Now you can run dist/m2q.exe
+Now you can run the application from dist/m2q.exe

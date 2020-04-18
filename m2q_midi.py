@@ -2,10 +2,7 @@
 #   Everything related the MIDI communication of m2q
 #
 
-import sys
 import logging
-
-from tkinter import messagebox
 
 # used for getting midi ports
 from rtmidi import (
@@ -15,26 +12,22 @@ from rtmidi import (
     API_UNIX_JACK,
     API_WINDOWS_MM,
     MidiIn,
-    MidiOut,
     get_compiled_api,
     midiutil,
 )
 
 import m2q_comm
-import m2q_ui
-from m2q_ui import UserInterface
-
 
 # Class MidiInputHandler - Revised version of the rtmidi example for non-polling midi handling
-class MidiInputHandler(object):
-    def __init__(self, settings, udpSocket, userInterface):
+class MidiInputHandler:
+    def __init__(self, settings, udp_socket, user_interface):
         # self._wallclock = time.time()
         self.settings = settings
-        self.udpSocket = udpSocket
+        self.udp_socket = udp_socket
         self.level = 0  # PB Level for Midi CC filtering
         self.chan = 16  # midi channel received, from 1 to 16 for CC filtering
         self.beatcounter = 0  # used for counting tap to tempo
-        self.userInterface = userInterface
+        self.user_interface = user_interface
 
     def __call__(self, event, data=None):
         # second variable is deltatime, no idea what it means and why using it
@@ -49,63 +42,64 @@ class MidiInputHandler(object):
         # 0x9f = note on - channel 16
         # here I split them separately
 
-        logging.debug("MidiInputHandler __call__: " + str(message))
+        logging.debug("MidiInputHandler __call__: %s", str(message))
 
         channel = None
         note = None
 
-        midiType = message[0]
+        midi_type = message[0]
 
         # handling midiClock, does not have message[1] and [2]
-        if midiType == 0xFA or midiType == 0xFB or midiType == 0xFC or midiType == 0xF8:
+        if midi_type in (0xFA, 0xFB, 0xFC, 0xF8):
             pass
 
         # handling noteOn, noteOff and controlChange
         elif (
-            (message[0] & 0xF0) == 0x90
-            or (message[0] & 0xF0) == 0x80
-            or (message[0] & 0xF0) == 0xB0
+                (message[0] & 0xF0) == 0x90
+                or (message[0] & 0xF0) == 0x80
+                or (message[0] & 0xF0) == 0xB0
         ):
             # in this case message[0] contains both the type and the channel, I need to split them
             channel = (message[0] & 0x0F) + 1
-            midiType = message[0] & 0xF0
+            midi_type = message[0] & 0xF0
             note = message[1]
             value = message[2]
 
             # flash MIDIIN led
-            self.userInterface.flash("MIDI")
+            self.user_interface.flash("MIDI")
 
         else:
             logging.debug("Incoming midi type not supported")
             return
 
         # decodes what type of midi message is sent and calls the proper handling function
-        remoteMessage = None
+        remote_message = None
 
-        if midiType == 0x90:
-            if self.settings["cueStackMode"] == True:
+        if midi_type == 0x90:
+            if self.settings["cueStackMode"]:
                 # handles note on (jumpToCue or activate cue stack triggering)
                 if channel == 16:
                     # 2 = activate cuestack triggering
-                    remoteMessage = m2q_comm.createMessage(2, channel, note, None)
+                    remote_message = m2q_comm.create_message(2, channel, note, None)
                 else:
-                    if self.settings["jumpMode"] == True:
+                    if self.settings["jumpMode"]:
                         # 0 = jump to cue
-                        remoteMessage = m2q_comm.createMessage(
+                        remote_message = m2q_comm.create_message(
                             0, channel, note, self.settings["wingMode"]
                         )
 
-        elif midiType == 0x80:
+        elif midi_type == 0x80:
             # handles note off (deactivate cue stack triggering)
             if channel == 16:
-                if self.settings["cueStackMode"] == True:
+                if self.settings["cueStackMode"]:
                     # 3 = de-activate cuestack triggering
-                    remoteMessage = m2q_comm.createMessage(3, channel, note, None)
+                    remote_message = m2q_comm.create_message(3, channel, note, None)
 
-        elif midiType == 0xB0:
+        elif midi_type == 0xB0:
             # handles control change (changes playback level)
-            if self.settings["levelMode"] == True:
-                # filtering on controller 1, other controller values are not used (this avoids that pressing stop in ableton resets playback)
+            if self.settings["levelMode"]:
+                # filtering on controller 1, other controller values are not used
+                # (this avoids that pressing stop in ableton resets playback)
                 if note == 1:
                     # only send messages if value is different, filter for reducing messages
                     if channel != 16:
@@ -115,32 +109,30 @@ class MidiInputHandler(object):
                             self.level = value
                             self.chan = channel
 
-                            remoteMessage = m2q_comm.createMessage(
+                            remote_message = m2q_comm.create_message(
                                 1, channel, value, self.settings["wingMode"]
                             )
 
-        elif (
-            midiType == 0xFA or midiType == 0xFB or midiType == 0xFC or midiType == 0xF8
-        ):
+        elif midi_type in (0xFA, 0xFB, 0xFC, 0xF8):
             # handles clock start/stop etc
-            if self.settings["tapToTempoMode"] == True:
+            if self.settings["tapToTempoMode"]:
                 self.beatcounter += 1
                 if self.beatcounter == 24:
                     self.beatcounter = 0
-                    remoteMessage = m2q_comm.createMessage(4, channel, note, None)
+                    remote_message = m2q_comm.create_message(4, channel, note, None)
 
-        if remoteMessage != None:
+        if remote_message is not None:
             # Send the UDP message
-            m2q_comm.sendUdp(
-                self.udpSocket,
-                remoteMessage,
+            m2q_comm.send_udp(
+                self.udp_socket,
+                remote_message,
                 self.settings["destinationIP"],
                 self.settings["destPort"],
-                self.userInterface,
+                self.user_interface,
             )
 
 
-def probeMidiPorts():
+def probe_midi_ports():
     apis = {
         API_MACOSX_CORE: "macOS (OS X) CoreMIDI",
         API_LINUX_ALSA: "Linux ALSA",
@@ -151,89 +143,87 @@ def probeMidiPorts():
 
     available_apis = get_compiled_api()
 
-    for api, api_name in sorted(apis.items()):
+    for api, _ in sorted(apis.items()):
         if api in available_apis:
             try:
                 midi = MidiIn(api)
                 ports = midi.get_ports()
-            except StandardError as exc:
-                logging.warning("Could not probe MIDI input ports: %s" % (exc))
+            except SystemError as exc:
+                logging.warning("Could not probe MIDI input ports: %s", exc)
                 return []
 
             del midi
 
             if not ports:
                 return []
-            else:
-                # get_ports returns a list of ports in the order of the ports.
-                # The port name contains the port number we don't want so let's strip it away
-                renamed_ports = []
-                for index, port in enumerate(ports):
-                    port = port[: -(len(str(index)) + 1)]
-                    renamed_ports.append(port)
-                return renamed_ports
+
+            # get_ports returns a list of ports in the order of the ports.
+            # The port name contains the port number we don't want so let's strip it away
+            renamed_ports = []
+            for index, port in enumerate(ports):
+                port = port[: -(len(str(index)) + 1)]
+                renamed_ports.append(port)
+            return renamed_ports
 
 
-def activateMidiPort(userInterface, selectedPort):
-    midiin, port_name = midiutil.open_midiinput(selectedPort)
-    UISetMidiPort(userInterface, selectedPort)
+def activate_midi_port(user_interface, selected_port):
+    midiin, port_name = midiutil.open_midiinput(selected_port)
+    ui_set_midi_port(user_interface, selected_port)
 
     return midiin, port_name
 
 
-def changeMidiPort(userInterface, newPortIndex, settings):
-    userInterface.midiInterface.close_port()
-    userInterface.midiInterface.open_port(new_port_index)
-    userInterface.midiInterface.set_callback(
-        MidiInputHandler(settings, userInterface.udpSocket, userInterface)
+def change_midi_port(user_interface, new_port_index, settings):
+    user_interface.midi_interface.close_port()
+    user_interface.midi_interface.open_port(new_port_index)
+    user_interface.midi_interface.set_callback(
+        MidiInputHandler(settings, user_interface.udp_socket, user_interface)
     )
 
 
-def UISetMidiPortsChoices(userInterface, ports):
-    for port, name in enumerate(ports):
-        if name not in userInterface.interfacesValue["values"]:
-            userInterface.interfacesValue["values"] = (
-                *userInterface.interfacesValue["values"],
+def ui_set_midi_ports_choices(user_interface, ports):
+    for _, name in enumerate(ports):
+        if name not in user_interface.interfaces_value["values"]:
+            user_interface.interfaces_value["values"] = (
+                *user_interface.interfaces_value["values"],
                 name,
             )
 
 
-def UISetMidiPort(userInterface, port):
-    userInterface.interfacesValue.set(port)
+def ui_set_midi_port(user_interface, port):
+    user_interface.interfaces_value.set(port)
 
-def getMidiInterfaces():
-    ports = probeMidiPorts()
+def get_midi_interfaces():
+    ports = probe_midi_ports()
 
     # Todo: What should be done when there is no ports available?
     if not ports:
-        return
+        return []
 
     return ports
 
-def refreshMidiInterfaces(userInterface, tkRoot):
-    ports = getMidiInterfaces()
-    UISetMidiPortsChoices(userInterface, ports)
-    tkRoot.after(5000, refreshMidiInterfaces, userInterface, tkRoot)
+def refresh_midi_interfaces(user_interface, tk_root):
+    ports = get_midi_interfaces()
+    ui_set_midi_ports_choices(user_interface, ports)
+    tk_root.after(5000, refresh_midi_interfaces, user_interface, tk_root)
 
 # Midi setup - from the rtmidi example for non-polling midi handling
-def midiSetup(settings, udpSocket, userInterface):
-    ports = getMidiInterfaces()
-    UISetMidiPortsChoices(userInterface, ports)
+def midi_setup(settings, udp_socket, user_interface):
+    ports = get_midi_interfaces()
+    ui_set_midi_ports_choices(user_interface, ports)
 
     try:
         if settings["interface"] in ports:
-            selectedPort = settings["interface"]
+            selected_port = settings["interface"]
         else:
-            selectedPort = ports[0]
+            selected_port = ports[0]
     except KeyError:
-        selectedPort = ports[0]
+        selected_port = ports[0]
 
- 
-
-    midiin, port_name = activateMidiPort(userInterface, selectedPort)
+    midiin, _ = activate_midi_port(user_interface, selected_port)
 
     logging.debug("Attaching MIDI input callback handler.")
     midiin.ignore_types(timing=False)
-    midiin.set_callback(MidiInputHandler(settings, udpSocket, userInterface))
+    midiin.set_callback(MidiInputHandler(settings, udp_socket, user_interface))
 
     return midiin

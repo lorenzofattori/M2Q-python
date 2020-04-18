@@ -1,0 +1,12 @@
+{
+	"folders": [
+		{
+			"path": "."
+		}
+	],
+	"settings": {
+		"python.linting.pylintArgs": [
+			"--extension-pkg-whitelist=rtmidi"
+		]
+	}
+}

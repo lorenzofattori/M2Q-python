@@ -2,7 +2,7 @@ import json
 import logging
 
 
-def loadSettings():
+def load_settings():
     settings = {
         "destinationIP": "255.255.255.255",
         "sourcePort": 6553,
@@ -26,7 +26,7 @@ def loadSettings():
     return settings
 
 
-def saveSettings(settings):
+def save_settings(settings):
     # save settings to file
     with open("settings.json", "w") as prefs_file:
         json.dump(settings, prefs_file)
