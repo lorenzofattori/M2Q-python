@@ -54,5 +54,7 @@ if __name__ == "__main__":
     # it will be nice to have this in the userinterface class, but I don't know how to properly handle the midiin port closing and deleting of midiin, any idea?
     window.protocol("WM_DELETE_WINDOW", lambda: userInterface.shutdown(midiin))
 
+    window.after(5000, m2q_midi.refreshMidiInterfaces, userInterface, window)
+
     # everything is handled via the input callback, just refresh UI
     window.mainloop()
