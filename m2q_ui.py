@@ -4,6 +4,7 @@ import sys
 import os
 
 import config
+from m2q_midi import change_midi_port
 
 
 class UserInterface:
