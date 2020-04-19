@@ -365,9 +365,9 @@ class UserInterface:
     def shutdown(self, midiin):
         if messagebox.askokcancel("Quit", "Do you want to quit?"):
             self.window.destroy()
-            if self.midi_interface:
-                self.midi_interface.close_port()
-                del self.midi_interface
+            if self.midiInterface:
+                self.midiInterface.close_port()
+                del self.midiInterface
             sys.exit()
 
     def flash(self, whichValue):
