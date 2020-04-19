@@ -201,24 +201,14 @@ def UISetMidiPortsChoices(userInterface, ports):
 def UISetMidiPort(userInterface, port):
     userInterface.interfacesValue.set(port)
 
-def getMidiInterfaces():
+
+# Midi setup - from the rtmidi example for non-polling midi handling
+def midiSetup(settings, udpSocket, userInterface):
     ports = probeMidiPorts()
 
     # Todo: What should be done when there is no ports available?
     if not ports:
         return
-
-    return ports
-
-def refreshMidiInterfaces(userInterface, tkRoot):
-    ports = getMidiInterfaces()
-    UISetMidiPortsChoices(userInterface, ports)
-    tkRoot.after(5000, refreshMidiInterfaces, userInterface, tkRoot)
-
-# Midi setup - from the rtmidi example for non-polling midi handling
-def midiSetup(settings, udpSocket, userInterface):
-    ports = getMidiInterfaces()
-    UISetMidiPortsChoices(userInterface, ports)
 
     try:
         if settings["interface"] in ports:
@@ -228,7 +218,7 @@ def midiSetup(settings, udpSocket, userInterface):
     except KeyError:
         selectedPort = ports[0]
 
- 
+    UISetMidiPortsChoices(userInterface, ports)
 
     midiin, portName = activateMidiPort(userInterface, selectedPort)
 
