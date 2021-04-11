@@ -25,8 +25,8 @@
 
 ### Triggering Playbacks
 Triggering Playbacks is used for remotely activate and switch cues inside a playback of MagicQ. This can be useful for real-time cue triggering without having to use Timecode.
-- When you send a Note ON message on note X of MIDI Channel Y, M2Q will convert it in trigger Note X of Playback Y.
-- Works witrh Playback 1-15 an corresponds of the first 15 Playbacks of the Console (Note: M2Q PC is limited to the first 10 Playbacks).
+- When you send a Note ON message on note X of MIDI Channel Y, M2Q will convert it in trigger Cue X of Playback Y.
+- Works with Playback 1-15 an corresponds of the first 15 Playbacks of the Console (Note: M2Q PC is limited to the first 10 Playbacks).
 - Up to 126 Cues can be triggered.
 
 ### Changing Playback Level
