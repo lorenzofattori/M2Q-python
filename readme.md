@@ -70,4 +70,4 @@ You don't have paypal but you want to donate anyway? Contact me!
 
 ## Professional Hardware version
 I have an hardware version that can suit your professional needs for show synchronization. It has been already used touring around the world and it work out of the box without starting any PC or software.
-Are you interest in the more powerful, professional and easy to use version of M2Q? Contact me!
+Are you interest in the more powerful, professional and easy to use version of M2Q? You can find it [here!](https://www.tindie.com/products/lorenzofattori/m2q-control-your-chamsys-console-via-midi/)
