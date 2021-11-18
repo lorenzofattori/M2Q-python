@@ -47,7 +47,7 @@ Tap2Tempo Trigger is used to synchronize the MIDI clock to the internal console 
 - The remote trigger needs to be set up as Tap to time sel PB.
 
 ### Wing Mode
-When selected, it will trigger the playbacks from 11 to 25 instead of 1 to 25, in this way you can still use your first 10 playbacks manually and have the "automated" triggering on the first wing playbacks
+When selected, it will trigger the playbacks from 11 to 25 instead of 1 to 15, in this way you can still use your first 10 playbacks manually and have the "automated" triggering on the first wing playbacks
 
 
 # Set UP Chamsys
